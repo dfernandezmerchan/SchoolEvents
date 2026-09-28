@@ -9,5 +9,5 @@ public class SchoolEventsApplication {
     public static void main(String[] args) {
         SpringApplication.run(SchoolEventsApplication.class, args);
     }
-    //hola
+    //hola adios
 }
