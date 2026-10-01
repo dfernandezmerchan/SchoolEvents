@@ -20,7 +20,7 @@ public class Inscripcion {
     @Column(name = "id")
     private Integer id;
 
-    public enum estadoinscripcion{BORRADOR, PUBLICADO, FINALIZADO, CANCELADO };
+    public enum estadoinscripcion{CONFIRMADA, EN_ESPERA, CANCELADA};
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "estado")
     private Inscripcion.estadoinscripcion estado;

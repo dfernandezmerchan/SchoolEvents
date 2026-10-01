@@ -20,6 +20,12 @@ public class TestRepositorioEvento {
 
         List<Evento> todos = repository.findAll();
 
+        System.out.println("Número de eventos: " + todos.size());
+
+        for (Evento evento : todos) {
+            System.out.println(evento);
+        }
+
     }
 
 }
