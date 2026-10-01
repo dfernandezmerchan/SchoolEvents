@@ -23,7 +23,11 @@ public class TestRepositorioEvento {
         System.out.println("Número de eventos: " + todos.size());
 
         for (Evento evento : todos) {
-            System.out.println(evento);
+            System.out.println("ID: " + evento.getId());
+            System.out.println("Título: " + evento.getTitulo());
+            System.out.println("Descripción: " + evento.getDescripcion());
+            System.out.println("Estado: " + evento.getEstado());
+            System.out.println("-----------------------------");
         }
 
     }
