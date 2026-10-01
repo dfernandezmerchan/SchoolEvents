@@ -23,22 +23,22 @@ public class Usuario {
     @Column(name = "id")
     private Integer id;
 
-    @Column (name = "nombre")
+    @Column (name = "nombre", nullable = false)
     private String nombre;
 
-    @Column (name = "apellido1")
+    @Column (name = "apellido1", nullable = false)
     private String apellido1;
 
     @Column (name = "apellido2")
     private String apellido2;
 
-    @Column (name = "email")
+    @Column (name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column (name = "username")
+    @Column (name = "username", unique = true, nullable = false)
     private String username;
 
-    @Column (name = "password")
+    @Column (name = "password", nullable = false)
     private String password;
 
     @Column (name = "fechanac")

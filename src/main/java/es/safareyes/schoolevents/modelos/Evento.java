@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "evento")
@@ -31,11 +33,13 @@ public class Evento {
     @Column(name = "descripcion")
     private String descripcion;
 
-    @Column(name = "titulo")
+    @Column(name = "titulo", length = 100)
     private String titulo;
 
+    public enum estadoevento{BORRADOR, PUBLICADO, FINALIZADO, CANCELADO };
+    @Enumerated(EnumType.ORDINAL)
     @Column(name = "estado")
-    private Integer estado;
+    private estadoevento estado;
 
     @Column(name = "fechalimite")
     private LocalDateTime fechalimite;
@@ -52,6 +56,14 @@ public class Evento {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizador_id")
     private Usuario organizador;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "evento_curso",
+            joinColumns = @JoinColumn(name = "evento_id"),
+            inverseJoinColumns = @JoinColumn(name = "curso_id")
+    )
+    private Set<Curso> cursos = new HashSet<>();
 
 
 }

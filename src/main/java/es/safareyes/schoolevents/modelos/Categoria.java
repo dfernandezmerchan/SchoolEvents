@@ -18,13 +18,13 @@ public class Categoria {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "nombre")
+    @Column(name = "nombre", unique = true, length = 100)
     private String nombre;
 
-    @Column(name = "color")
+    @Column(name = "color", length = 100)
     private String color;
 
-    @Column(name = "icono")
+    @Column(name = "icono", length = 100)
     private String icono;
 
 }
