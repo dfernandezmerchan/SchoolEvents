@@ -65,5 +65,4 @@ public class Evento {
     )
     private Set<Curso> cursos = new HashSet<>();
 
-
 }
