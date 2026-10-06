@@ -8,27 +8,19 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import java.util.*;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class TestRepositorioEvento {
 
     @Autowired
-    private IEventoRepository repository;
+    private IEventoRepository eventos;
 
     @Test
-    void consultarEvento() {
+    void todosLosEventos() {
 
-        List<Evento> todos = repository.findAll();
 
-        System.out.println("Número de eventos: " + todos.size());
-
-        for (Evento evento : todos) {
-            System.out.println("ID: " + evento.getId());
-            System.out.println("Título: " + evento.getTitulo());
-            System.out.println("Descripción: " + evento.getDescripcion());
-            System.out.println("Estado: " + evento.getEstado());
-            System.out.println("-----------------------------");
-        }
 
     }
 
