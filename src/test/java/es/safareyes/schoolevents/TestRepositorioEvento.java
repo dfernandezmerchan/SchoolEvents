@@ -1,7 +1,9 @@
 package es.safareyes.schoolevents;
 
 import es.safareyes.schoolevents.modelos.Evento;
+import es.safareyes.schoolevents.modelos.Lugar;
 import es.safareyes.schoolevents.repositorios.IEventoRepository;
+import es.safareyes.schoolevents.repositorios.IInscripcionRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -21,6 +23,9 @@ public class TestRepositorioEvento {
     @Autowired
     private IEventoRepository eventos;
     List<Evento.estadoevento> visibles = List.of(Evento.estadoevento.PUBLICADO, Evento.estadoevento.FINALIZADO);
+
+    @Autowired
+    private IInscripcionRepository inscripciones;
 
 
     private void imprimirEventos(List<Evento> eventos) {
@@ -82,6 +87,24 @@ public class TestRepositorioEvento {
         System.out.println("Eventos de " + Month.of(mes) + " - " + anio + ": " + resultado.size());
         for (Evento e : resultado) {
             System.out.println(e.getCategoria().getIcono() + " " + e.getFechaini().format(formato) + " - " + e.getTitulo());
+        }
+    }
+
+    @Test
+    void eventosIdDetalle() {
+        List<Evento> eventosId = eventos.findByIdOrderByFechainiAsc(1);
+
+
+        for(Evento evento: eventosId) {
+            int aforo = evento.getLugar().getAforomaximo();
+            int ocupadas = inscripciones.countByEvento_Id(evento.getId());
+            int libres = aforo - ocupadas;
+
+
+            System.out.println("nombre: " + evento.getTitulo());
+            System.out.println("plazas libres: " + libres );
+            System.out.println("cursos implicados: ");
+            evento.getCursos().forEach(curso -> System.out.println(curso.getNombre()));
         }
     }
 

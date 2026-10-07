@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IInscripcionRepository extends JpaRepository<Inscripcion, Integer> {
-
+    int countByEvento_Id(Integer eventoId);
 }

@@ -41,4 +41,9 @@ public interface IEventoRepository extends JpaRepository<Evento, Integer> {
     List<Evento> findByEstadoInAndFechainiBetweenOrderByFechainiAsc(
             List<Evento.estadoevento> estados, LocalDateTime desde, LocalDateTime hasta);
 
+
+    //filtrar eventos por la id y que deuvelva lugar requisitos plazas libres y cursos
+    @EntityGraph(attributePaths = {"cursos", "lugar"})
+    List<Evento> findByIdOrderByFechainiAsc(Integer id);
+
 }
