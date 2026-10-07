@@ -24,7 +24,6 @@ public interface IEventoRepository extends JpaRepository<Evento, Integer> {
     @EntityGraph(attributePaths = {"categoria", "cursos", "lugar", "organizador"})
     List<Evento> findByCursos_IdOrderByFechainiAsc(Integer idCurso);
 
-
     //filtrar por titulo
     @EntityGraph(attributePaths = {"categoria", "cursos", "lugar", "organizador"})
     List<Evento> findByTituloContainingIgnoreCaseOrderByFechainiAsc(String titulo);
@@ -36,5 +35,10 @@ public interface IEventoRepository extends JpaRepository<Evento, Integer> {
     //entre dos fechas
     @EntityGraph(attributePaths = {"categoria", "cursos", "lugar", "organizador"})
     List<Evento> findByFechainiBetweenOrderByFechainiAsc(LocalDateTime desde, LocalDateTime hasta);
+
+    //listado de eventos del mes (get 2) preguntar si es importante los estados borrador para mostrar o no
+    @EntityGraph(attributePaths = {"categoria"})
+    List<Evento> findByEstadoInAndFechainiBetweenOrderByFechainiAsc(
+            List<Evento.estadoevento> estados, LocalDateTime desde, LocalDateTime hasta);
 
 }

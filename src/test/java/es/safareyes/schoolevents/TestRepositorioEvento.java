@@ -8,6 +8,8 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
@@ -18,6 +20,8 @@ public class TestRepositorioEvento {
 
     @Autowired
     private IEventoRepository eventos;
+    List<Evento.estadoevento> visibles = List.of(Evento.estadoevento.PUBLICADO, Evento.estadoevento.FINALIZADO);
+
 
     private void imprimirEventos(List<Evento> eventos) {
         System.out.println("Eventos encontrados: " + eventos.size());
@@ -48,7 +52,7 @@ public class TestRepositorioEvento {
 
     @Test
     void filtrarEventosTitulo() {
-        imprimirEventos(eventos.findByTituloContainingIgnoreCaseOrderByFechainiAsc("Fútbol"));
+        imprimirEventos(eventos.findByTituloContainingIgnoreCaseOrderByFechainiAsc("proyectos"));
     }
 
     @Test
@@ -61,6 +65,24 @@ public class TestRepositorioEvento {
         imprimirEventos(eventos.findByFechainiBetweenOrderByFechainiAsc(
                 LocalDateTime.of(2026, 10, 1, 0, 0),
                 LocalDateTime.of(2026, 10, 31, 23, 59)));
+    }
+
+    @Test
+    void eventosDelMes() {
+        int mes = 10;
+        int anio = 2026;
+
+        LocalDateTime desde = LocalDateTime.of(anio, mes, 1, 0, 0);
+        LocalDateTime hasta = desde.plusMonths(1).minusNanos(1); //+1 mes -1 dia osea 31 del mes no 1 del siguiente
+
+        List<Evento> resultado = eventos.findByEstadoInAndFechainiBetweenOrderByFechainiAsc(visibles, desde, hasta);
+
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        System.out.println("Eventos de " + Month.of(mes) + " - " + anio + ": " + resultado.size());
+        for (Evento e : resultado) {
+            System.out.println(e.getCategoria().getIcono() + " " + e.getFechaini().format(formato) + " - " + e.getTitulo());
+        }
     }
 
 }
