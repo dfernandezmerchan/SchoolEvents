@@ -92,7 +92,7 @@ public class TestRepositorioEvento {
     }
 
 
-
+    //get 3
     @Test
     void eventosIdDetalle() {
         // 1 sola consulta
@@ -101,6 +101,24 @@ public class TestRepositorioEvento {
         System.out.println("nombre: " + resumen.get("titulo"));
         System.out.println("plazas libres: " + resumen.get("plazasLibres"));
         System.out.println("cursos implicados: " + resumen.get("cursos"));
+    }
+
+    //get 11
+    @Test
+    void consultarAgendaUsuario() {
+        int idUsuario = 1; // El ID del usuario/alumno que queremos consultar
+
+        // 1 sola consulta que trae su agenda ordenada por fecha
+        List<Object[]> agenda = eventos.AgendaUsuario(idUsuario);
+
+        System.out.println("=== AGENDA DEL USUARIO " + idUsuario + " ===");
+
+        for (Object[] cita : agenda) {
+            System.out.println("Evento: " + cita[0]);
+            System.out.println("Fecha : " + cita[1]);
+            System.out.println("Lugar : " + cita[2]);
+            System.out.println("-------------------------");
+        }
     }
 
 

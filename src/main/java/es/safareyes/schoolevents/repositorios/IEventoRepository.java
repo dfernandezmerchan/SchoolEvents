@@ -59,4 +59,19 @@ public interface IEventoRepository extends JpaRepository<Evento, Integer> {
         """, nativeQuery = true)
     Tuple getResumenUnico(@Param("id") Integer id);
 
+    //get 11
+    @Query(value = """
+        SELECT 
+            e.titulo,
+            e.fechaini,
+            l.nombre AS lugarNombre
+        FROM evento e
+        INNER JOIN inscripcion i ON e.id = i.evento_id
+        LEFT JOIN lugar l ON e.id_lugar = l.id
+        WHERE i.usuario_id = :usuarioId
+        ORDER BY e.fechaini ASC
+        """, nativeQuery = true)
+    List<Object[]> AgendaUsuario(@Param("usuarioId") Integer usuarioId);
+
+
 }
