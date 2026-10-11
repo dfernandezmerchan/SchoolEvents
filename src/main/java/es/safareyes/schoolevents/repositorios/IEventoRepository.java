@@ -1,6 +1,7 @@
 package es.safareyes.schoolevents.repositorios;
 
 import es.safareyes.schoolevents.modelos.Evento;
+import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -43,7 +44,19 @@ public interface IEventoRepository extends JpaRepository<Evento, Integer> {
 
 
     //filtrar eventos por la id y que deuvelva lugar requisitos plazas libres y cursos
-    @EntityGraph(attributePaths = {"cursos", "lugar"})
-    List<Evento> findByIdOrderByFechainiAsc(Integer id);
+    @Query(value = """
+        SELECT 
+            e.titulo AS titulo,
+            (l.aforomaximo - COUNT(DISTINCT i.id)) AS plazasLibres,
+            STRING_AGG(DISTINCT c.nombre, ', ') AS cursos
+        FROM evento e
+        LEFT JOIN lugar l ON e.id_lugar = l.id
+        LEFT JOIN inscripcion i ON e.id = i.evento_id
+        LEFT JOIN evento_curso ec ON e.id = ec.evento_id
+        LEFT JOIN curso c ON ec.curso_id = c.id
+        WHERE e.id = :id
+        GROUP BY e.id, l.id
+        """, nativeQuery = true)
+    Tuple getResumenUnico(@Param("id") Integer id);
 
 }

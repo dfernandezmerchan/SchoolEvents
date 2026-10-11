@@ -4,6 +4,7 @@ import es.safareyes.schoolevents.modelos.Evento;
 import es.safareyes.schoolevents.modelos.Lugar;
 import es.safareyes.schoolevents.repositorios.IEventoRepository;
 import es.safareyes.schoolevents.repositorios.IInscripcionRepository;
+import jakarta.persistence.Tuple;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -90,22 +91,29 @@ public class TestRepositorioEvento {
         }
     }
 
+
+
     @Test
     void eventosIdDetalle() {
-        List<Evento> eventosId = eventos.findByIdOrderByFechainiAsc(1);
+        // 1 sola consulta
+        Tuple resumen = eventos.getResumenUnico(1);
 
+        // Extraes los datos por su nombre de columna
+        String titulo = resumen.get("titulo", String.class);
+        Number plazas = resumen.get("plazasLibres", Number.class);
+        String cursosStr = resumen.get("cursos", String.class);
 
-        for(Evento evento: eventosId) {
-            int aforo = evento.getLugar().getAforomaximo();
-            int ocupadas = inscripciones.countByEvento_Id(evento.getId());
-            int libres = aforo - ocupadas;
+        System.out.println("nombre: " + titulo);
+        System.out.println("plazas libres: " + (plazas != null ? plazas.intValue() : 0));
+        System.out.println("cursos implicados: ");
 
-
-            System.out.println("nombre: " + evento.getTitulo());
-            System.out.println("plazas libres: " + libres );
-            System.out.println("cursos implicados: ");
-            evento.getCursos().forEach(curso -> System.out.println(curso.getNombre()));
+        if (cursosStr != null) {
+            String[] listaCursos = cursosStr.split(", ");
+            for (String curso : listaCursos) {
+                System.out.println(curso);
+            }
         }
     }
+
 
 }
