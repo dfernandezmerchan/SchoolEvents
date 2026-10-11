@@ -96,7 +96,7 @@ public class TestRepositorioEvento {
     @Test
     void eventosIdDetalle() {
         // 1 sola consulta
-        Tuple resumen = eventos.getResumenUnico(1);
+        Tuple resumen = eventos.eventosLugar(1);
 
         System.out.println("nombre: " + resumen.get("titulo"));
         System.out.println("plazas libres: " + resumen.get("plazasLibres"));
@@ -106,13 +106,18 @@ public class TestRepositorioEvento {
     //get 11
     @Test
     void consultarAgendaUsuario() {
-        int idUsuario = 1; // El ID del usuario/alumno que queremos consultar
+        List<Object[]> agenda = eventos.AgendaUsuario(1);
 
-        // 1 sola consulta que trae su agenda ordenada por fecha
-        List<Object[]> agenda = eventos.AgendaUsuario(idUsuario);
+        // 1. Si no hay eventos, avisamos y paramos aquí
+        if (agenda.isEmpty()) {
+            System.out.println("El usuario no tiene eventos en su agenda.");
+            return;
+        }
 
-        System.out.println("=== AGENDA DEL USUARIO " + idUsuario + " ===");
+        // 2. Si hay eventos, sacamos el nombre de la primera fila (posición 3)
+        System.out.println("=== AGENDA DE: " + agenda.getFirst()[3] + " ===");
 
+        // 3. Imprimimos la lista
         for (Object[] cita : agenda) {
             System.out.println("Evento: " + cita[0]);
             System.out.println("Fecha : " + cita[1]);
