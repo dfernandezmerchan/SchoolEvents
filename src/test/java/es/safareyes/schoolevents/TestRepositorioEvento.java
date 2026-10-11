@@ -108,16 +108,16 @@ public class TestRepositorioEvento {
     void consultarAgendaUsuario() {
         List<Object[]> agenda = eventos.AgendaUsuario(1);
 
-        // 1. Si no hay eventos, avisamos y paramos aquí
+        // Si no hay eventos, avisamos y paramos aquí
         if (agenda.isEmpty()) {
             System.out.println("El usuario no tiene eventos en su agenda.");
             return;
         }
 
-        // 2. Si hay eventos, sacamos el nombre de la primera fila (posición 3)
+        // Si hay eventos, sacamos el nombre de la primera fila (posición 3)
         System.out.println("=== AGENDA DE: " + agenda.getFirst()[3] + " ===");
 
-        // 3. Imprimimos la lista
+        // Imprimimos la lista
         for (Object[] cita : agenda) {
             System.out.println("Evento: " + cita[0]);
             System.out.println("Fecha : " + cita[1]);
