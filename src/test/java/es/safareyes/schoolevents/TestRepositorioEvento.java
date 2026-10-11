@@ -98,21 +98,9 @@ public class TestRepositorioEvento {
         // 1 sola consulta
         Tuple resumen = eventos.getResumenUnico(1);
 
-        // Extraes los datos por su nombre de columna
-        String titulo = resumen.get("titulo", String.class);
-        Number plazas = resumen.get("plazasLibres", Number.class);
-        String cursosStr = resumen.get("cursos", String.class);
-
-        System.out.println("nombre: " + titulo);
-        System.out.println("plazas libres: " + (plazas != null ? plazas.intValue() : 0));
-        System.out.println("cursos implicados: ");
-
-        if (cursosStr != null) {
-            String[] listaCursos = cursosStr.split(", ");
-            for (String curso : listaCursos) {
-                System.out.println(curso);
-            }
-        }
+        System.out.println("nombre: " + resumen.get("titulo"));
+        System.out.println("plazas libres: " + resumen.get("plazasLibres"));
+        System.out.println("cursos implicados: " + resumen.get("cursos"));
     }
 
 
