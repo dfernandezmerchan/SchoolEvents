@@ -1,7 +1,6 @@
 package es.safareyes.schoolevents;
 
 import es.safareyes.schoolevents.modelos.Lugar;
-import es.safareyes.schoolevents.repositorios.ICategoriaRepository;
 import es.safareyes.schoolevents.repositorios.ILugarRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,7 @@ import java.util.List;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class TestRepositorioLugates {
+public class TestRepositorioLugares {
 
     @Autowired
     private ILugarRepository lugares;
