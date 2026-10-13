@@ -10,6 +10,7 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @DataJpaTest
@@ -44,6 +45,9 @@ public class TestRepositorioInscripcion {
         LocalDateTime desde = LocalDateTime.of(2026, 1, 1, 0, 0);
         LocalDateTime hasta = LocalDateTime.of(2026, 12, 31, 23, 59);
 
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+
         List<Object[]> informe = inscripcionesRepo.getInformeParticipacion(desde, hasta);
 
         if (informe.isEmpty()) {
@@ -52,6 +56,7 @@ public class TestRepositorioInscripcion {
         }
 
         System.out.println("=== INFORME DE PARTICIPACIÓN ===");
+        System.out.println("Desde: " + desde.format(formato) + " Hasta: " + hasta.format(formato));
         for (Object[] fila : informe) {
             System.out.println("Categoría   : " + fila[0]);
             System.out.println("Curso       : " + fila[1]);

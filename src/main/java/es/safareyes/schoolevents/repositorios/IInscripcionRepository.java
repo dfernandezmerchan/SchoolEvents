@@ -14,6 +14,7 @@ import java.util.List;
 
 @Repository
 public interface IInscripcionRepository extends JpaRepository<Inscripcion, Integer> {
+
     @EntityGraph(attributePaths = {"usuario"})
     List<Inscripcion> findByEventoId(Integer eventoId);
 
