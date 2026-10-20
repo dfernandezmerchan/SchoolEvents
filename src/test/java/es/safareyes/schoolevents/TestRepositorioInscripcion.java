@@ -23,7 +23,7 @@ public class TestRepositorioInscripcion {
     //get 12
     @Test
     void consultarInscripcionesPorEvento() {
-        int idEvento = 1;
+        int idEvento = 2;
         List<Inscripcion> inscripciones = inscripcionesRepo.findByEventoId(idEvento);
 
         if (inscripciones.isEmpty()) {
