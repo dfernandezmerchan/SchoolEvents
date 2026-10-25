@@ -6,136 +6,137 @@ import es.safareyes.schoolevents.mapper.InscripcionMapper;
 import es.safareyes.schoolevents.modelos.Evento;
 import es.safareyes.schoolevents.modelos.Inscripcion;
 import es.safareyes.schoolevents.modelos.Usuario;
-import es.safareyes.schoolevents.repositorios.IEventoRepository;
-import es.safareyes.schoolevents.repositorios.IInscripcionRepository;
-import es.safareyes.schoolevents.repositorios.IUsuarioRepository;
+import es.safareyes.schoolevents.repositorios.*;
 import es.safareyes.schoolevents.servicios.InscripcionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InscripcionServiceImpl implements InscripcionService {
 
+    // Necesitamos 3 repositorios (Inscripcion, Usuario y Evento) y el Mapper
     private final IInscripcionRepository inscripcionRepository;
-    private final IEventoRepository eventoRepository;
     private final IUsuarioRepository usuarioRepository;
+    private final IEventoRepository eventoRepository;
     private final InscripcionMapper inscripcionMapper;
 
     public InscripcionServiceImpl(IInscripcionRepository inscripcionRepository,
-                                  IEventoRepository eventoRepository,
                                   IUsuarioRepository usuarioRepository,
+                                  IEventoRepository eventoRepository,
                                   InscripcionMapper inscripcionMapper) {
         this.inscripcionRepository = inscripcionRepository;
-        this.eventoRepository = eventoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.eventoRepository = eventoRepository;
         this.inscripcionMapper = inscripcionMapper;
     }
 
+    // 1. INSCRIBIR A UN USUARIO EN UN EVENTO
     @Override
     @Transactional
     public InscripcionResponse inscribirse(InscripcionRequest request) {
-        Evento evento = eventoRepository.findById(request.idEvento())
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado con ID: " + request.idEvento()));
 
-        Usuario usuario = usuarioRepository.findById(request.idUsuario())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + request.idUsuario()));
-
-        // RN-02 y RN-04: Solo eventos PUBLICADO y antes de la fecha límite
-        if (evento.getEstado() != Evento.estadoevento.PUBLICADO) {
-            throw new RuntimeException("No es posible inscribirse en un evento que no esté PUBLICADO");
-        }
-        if (evento.getFechalimite() != null && LocalDateTime.now().isAfter(evento.getFechalimite())) {
-            throw new RuntimeException("Ha pasado la fecha límite para inscribirse en este evento");
+        // PASO A: Comprobar si el usuario existe en PostgreSQL
+        Usuario usuario = usuarioRepository.findById(request.idUsuario()).orElse(null);
+        if (usuario == null) {
+            throw new RuntimeException("No existe ningún usuario con el ID: " + request.idUsuario());
         }
 
-        // RN-03: Restricción de curso (si el evento está restringido a ciertos cursos)
-        if (evento.getCursos() != null && !evento.getCursos().isEmpty()) {
-            if (usuario.getCurso() == null || !evento.getCursos().contains(usuario.getCurso())) {
-                throw new RuntimeException("Tu curso no está autorizado para asistir a este evento");
-            }
+        // PASO B: Comprobar si el evento existe en PostgreSQL
+        Evento evento = eventoRepository.findById(request.idEvento()).orElse(null);
+        if (evento == null) {
+            throw new RuntimeException("No existe ningún evento con el ID: " + request.idEvento());
         }
 
-        // Buscar si ya existe inscripción (evita duplicados según RN-04)
-        Optional<Inscripcion> inscripcionExistente = inscripcionRepository
-                .findByEventoIdAndUsuarioId(request.idEvento(), request.idUsuario());
+        // PASO C: Convertir el DTO Request a la entidad Inscripcion
+        Inscripcion nuevaInscripcion = inscripcionMapper.aEntidad(request);
 
-        Inscripcion inscripcion = inscripcionExistente.orElseGet(Inscripcion::new);
-        inscripcion.setEvento(evento);
-        inscripcion.setUsuario(usuario);
+        // PASO D: Asignar las dos entidades relacionadas
+        nuevaInscripcion.setUsuario(usuario);
+        nuevaInscripcion.setEvento(evento);
 
-        if (inscripcion.getId() == null) {
-            inscripcion.setFecha(LocalDateTime.now());
-        }
+        // PASO E: Guardar la inscripción en PostgreSQL
+        Inscripcion guardada = inscripcionRepository.save(nuevaInscripcion);
 
-        // Si la petición especifica un estado, se respeta; en otro caso, se calcula según el aforo (RN-05)
-        if (request.estado() != null) {
-            inscripcion.setEstado(request.estado());
-        } else {
-            long plazasConfirmadas = inscripcionRepository.countByEventoIdAndEstado(
-                    request.idEvento(), Inscripcion.estadoinscripcion.CONFIRMADA);
-
-            Integer aforoMaximo = (evento.getLugar() != null) ? evento.getLugar().getAforomaximo() : Integer.MAX_VALUE;
-
-            if (plazasConfirmadas < aforoMaximo) {
-                inscripcion.setEstado(Inscripcion.estadoinscripcion.CONFIRMADA);
-            } else {
-                inscripcion.setEstado(Inscripcion.estadoinscripcion.EN_ESPERA);
-            }
-        }
-
-        Inscripcion guardada = inscripcionRepository.save(inscripcion);
-        return inscripcionMapper.aResponse(guardada);
+        // PASO F: Convertir a DTO de respuesta y devolver
+        InscripcionResponse respuestaDto = inscripcionMapper.aResponse(guardada);
+        return respuestaDto;
     }
 
+    // 2. CANCELAR INCRIPCIÓN POR EVENTO Y USUARIO
     @Override
     @Transactional
-    public void cancelarInscripcion(Integer eventoId, Integer usuarioId) {
-        Inscripcion inscripcion = inscripcionRepository.findByEventoIdAndUsuarioId(eventoId, usuarioId)
-                .orElseThrow(() -> new RuntimeException("No existe ninguna inscripción activa para este usuario en el evento"));
+    public void cancelarInscripcion(Integer idEvento, Integer idUsuario) {
 
-        boolean teniaPlaza = (inscripcion.getEstado() == Inscripcion.estadoinscripcion.CONFIRMADA);
-        inscripcionRepository.delete(inscripcion);
+        // PASO A: Buscar la inscripción correspondiente a ese evento y usuario
+        Inscripcion inscripcion = inscripcionRepository
+                .findByEventoIdAndUsuarioId(idEvento, idUsuario)
+                .orElse(null);
 
-        // RN-05: Promoción automática del primero en lista de espera al liberar plaza
-        if (teniaPlaza) {
-            Optional<Inscripcion> primeroEnEspera = inscripcionRepository
-                    .findFirstByEventoIdAndEstadoOrderByFechaAsc(eventoId, Inscripcion.estadoinscripcion.EN_ESPERA);
-
-            if (primeroEnEspera.isPresent()) {
-                Inscripcion promocionado = primeroEnEspera.get();
-                promocionado.setEstado(Inscripcion.estadoinscripcion.CONFIRMADA);
-                inscripcionRepository.save(promocionado);
-            }
+        // PASO B: Comprobar si existía la inscripción
+        if (inscripcion == null) {
+            throw new RuntimeException("No se encontró la inscripción para el usuario "
+                    + idUsuario + " en el evento " + idEvento);
         }
+
+        // PASO C: Eliminar de la base de datos
+        inscripcionRepository.delete(inscripcion);
     }
 
+    // 3. LISTAR INSCRIPCIONES DE UN EVENTO
     @Override
     @Transactional(readOnly = true)
-    public List<InscripcionResponse> listarPorEvento(Integer eventoId) {
-        return inscripcionRepository.findByEventoId(eventoId)
-                .stream()
-                .map(inscripcionMapper::aResponse)
-                .toList();
+    public List<InscripcionResponse> listarPorEvento(Integer idEvento) {
+
+        // PASO A: Traer de PostgreSQL la lista de inscripciones para este evento
+        List<Inscripcion> listaEntidades = inscripcionRepository.findByEventoId(idEvento);
+
+        // PASO B: Lista vacía para guardar los DTOs
+        List<InscripcionResponse> listaRespuestas = new ArrayList<>();
+
+        // PASO C: Bucle for tradicional para mapear cada inscripción
+        for (Inscripcion inscripcion : listaEntidades) {
+            InscripcionResponse dto = inscripcionMapper.aResponse(inscripcion);
+            listaRespuestas.add(dto);
+        }
+
+        return listaRespuestas;
     }
 
+    // 4. LISTAR INSCRIPCIONES DE UN USUARIO
     @Override
     @Transactional(readOnly = true)
-    public List<InscripcionResponse> listarPorUsuario(Integer usuarioId) {
-        return inscripcionRepository.findByUsuarioId(usuarioId)
-                .stream()
-                .map(inscripcionMapper::aResponse)
-                .toList();
+    public List<InscripcionResponse> listarPorUsuario(Integer idUsuario) {
+
+        // PASO A: Traer de PostgreSQL la lista de inscripciones de este usuario
+        List<Inscripcion> listaEntidades = inscripcionRepository.findByUsuarioId(idUsuario);
+
+        // PASO B: Lista vacía para guardar los DTOs
+        List<InscripcionResponse> listaRespuestas = new ArrayList<>();
+
+        // PASO C: Bucle for tradicional para mapear cada inscripción
+        for (Inscripcion inscripcion : listaEntidades) {
+            InscripcionResponse dto = inscripcionMapper.aResponse(inscripcion);
+            listaRespuestas.add(dto);
+        }
+
+        return listaRespuestas;
     }
 
+    // 5. BUSCAR UNA INSCRIPCIÓN POR SU ID
     @Override
     @Transactional(readOnly = true)
     public InscripcionResponse buscarPorId(Integer id) {
-        Inscripcion inscripcion = inscripcionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Inscripción no encontrada con ID: " + id));
-        return inscripcionMapper.aResponse(inscripcion);
+
+        Inscripcion inscripcion = inscripcionRepository.findById(id).orElse(null);
+
+        if (inscripcion == null) {
+            throw new RuntimeException("No existe ninguna inscripción con el ID: " + id);
+        }
+
+        InscripcionResponse dto = inscripcionMapper.aResponse(inscripcion);
+        return dto;
     }
 }
