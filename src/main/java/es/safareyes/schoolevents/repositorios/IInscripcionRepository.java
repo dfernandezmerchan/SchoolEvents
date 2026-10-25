@@ -1,6 +1,5 @@
 package es.safareyes.schoolevents.repositorios;
 
-import es.safareyes.schoolevents.modelos.Evento;
 import es.safareyes.schoolevents.modelos.Inscripcion;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,18 +7,26 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IInscripcionRepository extends JpaRepository<Inscripcion, Integer> {
 
-    @EntityGraph(attributePaths = {"usuario"})
+    @EntityGraph(attributePaths = {"usuario", "evento"})
     List<Inscripcion> findByEventoId(Integer eventoId);
 
+    @EntityGraph(attributePaths = {"evento", "evento.lugar", "evento.categoria"})
+    List<Inscripcion> findByUsuarioId(Integer usuarioId);
 
-    //get 16 REVISAR
+    Optional<Inscripcion> findByEventoIdAndUsuarioId(Integer eventoId, Integer usuarioId);
+
+    // Métodos para el control de aforo y promociones de la lista de espera
+    long countByEventoIdAndEstado(Integer eventoId, Inscripcion.estadoinscripcion estado);
+
+    Optional<Inscripcion> findFirstByEventoIdAndEstadoOrderByFechaAsc(Integer eventoId, Inscripcion.estadoinscripcion estado);
+
     @Query(value = """
     SELECT 
         cat.nombre AS categoria,
@@ -37,5 +44,4 @@ public interface IInscripcionRepository extends JpaRepository<Inscripcion, Integ
     List<Object[]> getInformeParticipacion(
             @Param("desde") LocalDateTime desde,
             @Param("hasta") LocalDateTime hasta);
-
 }
