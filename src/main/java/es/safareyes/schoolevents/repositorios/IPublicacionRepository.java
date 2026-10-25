@@ -13,4 +13,8 @@ public interface IPublicacionRepository extends JpaRepository<Publicacion, Integ
     @Override
     @EntityGraph(attributePaths = {"fotos"})
     List<Publicacion> findAll();
+
+    List<Publicacion> findByUsuarioId(Integer usuarioId);
+
+    List<Publicacion> findByEventoId(Integer eventoId);
 }
