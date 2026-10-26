@@ -7,6 +7,7 @@ import es.safareyes.schoolevents.modelos.Categoria;
 import es.safareyes.schoolevents.modelos.Evento;
 import es.safareyes.schoolevents.repositorios.ICategoriaRepository;
 import es.safareyes.schoolevents.repositorios.IEventoRepository;
+import es.safareyes.schoolevents.servicios.CambioEventoService;
 import es.safareyes.schoolevents.servicios.EventoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,27 +22,42 @@ public class EventoServiceImpl implements EventoService {
     private final IEventoRepository eventoRepository;
     private final ICategoriaRepository categoriaRepository;
     private final EventoMapper eventoMapper;
+    private final CambioEventoService cambioEventoService;
 
     public EventoServiceImpl(IEventoRepository eventoRepository,
                              ICategoriaRepository categoriaRepository,
-                             EventoMapper eventoMapper) {
+                             EventoMapper eventoMapper,
+                             CambioEventoService cambioEventoService) {
         this.eventoRepository = eventoRepository;
         this.categoriaRepository = categoriaRepository;
         this.eventoMapper = eventoMapper;
+        this.cambioEventoService = cambioEventoService;
     }
 
-    // 1. LISTAR EVENTOS POR CATEGORÍA
+    // 1. LISTAR TODAS LAS PUBLICACIONES / EVENTOS
+    @Override
+    @Transactional(readOnly = true)
+    public List<EventoResponse> listarTodas() {
+
+        List<Evento> listaEntidades = eventoRepository.findAll();
+        List<EventoResponse> listaRespuestas = new ArrayList<>();
+
+        for (Evento evento : listaEntidades) {
+            EventoResponse dto = eventoMapper.aResponse(evento);
+            listaRespuestas.add(dto);
+        }
+
+        return listaRespuestas;
+    }
+
+    // 2. LISTAR EVENTOS POR CATEGORÍA
     @Override
     @Transactional(readOnly = true)
     public List<EventoResponse> listarPorCategoria(String categoria) {
 
-        // PASO A: Consultar los eventos por el nombre de la categoría en PostgreSQL
         List<Evento> listaEntidades = eventoRepository.findByCategoria_NombreOrderByFechainiAsc(categoria);
-
-        // PASO B: Preparar lista vacía para las respuestas
         List<EventoResponse> listaRespuestas = new ArrayList<>();
 
-        // PASO C: Bucle for tradicional para recorrer y mapear
         for (Evento evento : listaEntidades) {
             EventoResponse dto = eventoMapper.aResponse(evento);
             listaRespuestas.add(dto);
@@ -50,18 +66,14 @@ public class EventoServiceImpl implements EventoService {
         return listaRespuestas;
     }
 
-    // 2. BUSCAR EVENTOS POR TÍTULO
+    // 3. BUSCAR EVENTOS POR TÍTULO
     @Override
     @Transactional(readOnly = true)
     public List<EventoResponse> buscarPorTitulo(String titulo) {
 
-        // PASO A: Buscar eventos que contengan el texto en el título
         List<Evento> listaEntidades = eventoRepository.findByTituloContainingIgnoreCaseOrderByFechainiAsc(titulo);
-
-        // PASO B: Preparar lista de respuesta
         List<EventoResponse> listaRespuestas = new ArrayList<>();
 
-        // PASO C: Bucle for tradicional
         for (Evento evento : listaEntidades) {
             EventoResponse dto = eventoMapper.aResponse(evento);
             listaRespuestas.add(dto);
@@ -70,18 +82,14 @@ public class EventoServiceImpl implements EventoService {
         return listaRespuestas;
     }
 
-    // 3. BUSCAR EVENTOS ENTRE FECHAS
+    // 4. BUSCAR EVENTOS ENTRE FECHAS
     @Override
     @Transactional(readOnly = true)
     public List<EventoResponse> buscarEntreFechas(LocalDateTime desde, LocalDateTime hasta) {
 
-        // PASO A: Consultar en la base de datos los eventos en el rango de fechas
         List<Evento> listaEntidades = eventoRepository.findByFechainiBetweenOrderByFechainiAsc(desde, hasta);
-
-        // PASO B: Preparar lista vacía
         List<EventoResponse> listaRespuestas = new ArrayList<>();
 
-        // PASO C: Bucle for tradicional
         for (Evento evento : listaEntidades) {
             EventoResponse dto = eventoMapper.aResponse(evento);
             listaRespuestas.add(dto);
@@ -90,34 +98,47 @@ public class EventoServiceImpl implements EventoService {
         return listaRespuestas;
     }
 
-    // 4. BUSCAR UN EVENTO POR SU ID
+    // 5. OBTENER EVENTOS DEL MES Y AÑO (CALENDARIO)
+    @Override
+    @Transactional(readOnly = true)
+    public List<EventoResponse> listarPorMesYAnio(int mes, int anio) {
+
+        LocalDateTime inicioMes = LocalDateTime.of(anio, mes, 1, 0, 0, 0);
+        LocalDateTime finMes = inicioMes.plusMonths(1).minusNanos(1);
+
+        List<Evento> listaEntidades = eventoRepository.findByFechainiBetweenOrderByFechainiAsc(inicioMes, finMes);
+        List<EventoResponse> listaRespuestas = new ArrayList<>();
+
+        for (Evento evento : listaEntidades) {
+            EventoResponse dto = eventoMapper.aResponse(evento);
+            listaRespuestas.add(dto);
+        }
+
+        return listaRespuestas;
+    }
+
+    // 6. BUSCAR UN EVENTO POR SU ID
     @Override
     @Transactional(readOnly = true)
     public EventoResponse buscarPorId(Integer id) {
 
-        // PASO A: Traer el evento de la BD o null si no existe
         Evento evento = eventoRepository.findById(id).orElse(null);
 
-        // PASO B: Validación con 'if' tradicional
         if (evento == null) {
             throw new RuntimeException("No existe ningún evento con el ID: " + id);
         }
 
-        // PASO C: Convertir a DTO y devolver
         EventoResponse dto = eventoMapper.aResponse(evento);
         return dto;
     }
 
-    // 5. CREAR UN NUEVO EVENTO
+    // 7. CREAR UN NUEVO EVENTO
     @Override
     @Transactional
     public EventoResponse crear(EventoRequest request) {
 
-        // PASO A: Convertir DTO de petición a Entidad Evento
         Evento nuevoEvento = eventoMapper.aEntidad(request);
 
-        // PASO B: Asignar la Categoría si viene su ID en el request
-        // (Ajusta 'idCategoria()' si en tu EventoRequest la propiedad tiene otro nombre como 'categoriaId()')
         if (request.idCategoria() != null) {
             Categoria categoriaEncontrada = categoriaRepository.findById(request.idCategoria()).orElse(null);
 
@@ -128,27 +149,94 @@ public class EventoServiceImpl implements EventoService {
             nuevoEvento.setCategoria(categoriaEncontrada);
         }
 
-        // PASO C: Guardar en PostgreSQL
         Evento guardado = eventoRepository.save(nuevoEvento);
 
-        // PASO D: Convertir la entidad guardada a DTO de respuesta
         EventoResponse dto = eventoMapper.aResponse(guardado);
         return dto;
     }
 
-    // 6. ELIMINAR EVENTO POR ID
+    // 8. ACTUALIZAR UN EVENTO EXISTENTE
+    @Override
+    @Transactional
+    public EventoResponse actualizar(Integer id, EventoRequest request) {
+
+        Evento eventoExistente = eventoRepository.findById(id).orElse(null);
+
+        if (eventoExistente == null) {
+            throw new RuntimeException("No se puede actualizar. No existe el evento con ID: " + id);
+        }
+
+        // Se mapean los nuevos valores sobre la entidad recuperada
+        eventoExistente.setTitulo(request.titulo());
+        eventoExistente.setDescripcion(request.descripcion());
+        eventoExistente.setFechaini(request.fechaini());
+        eventoExistente.setFechafin(request.fechafin());
+        eventoExistente.setEstado(request.estado());
+
+        if (request.idCategoria() != null) {
+            Categoria categoriaEncontrada = categoriaRepository.findById(request.idCategoria()).orElse(null);
+            if (categoriaEncontrada == null) {
+                throw new RuntimeException("No existe la categoría con el ID: " + request.idCategoria());
+            }
+            eventoExistente.setCategoria(categoriaEncontrada);
+        }
+
+        Evento guardado = eventoRepository.save(eventoExistente);
+
+        EventoResponse dto = eventoMapper.aResponse(guardado);
+        return dto;
+    }
+
+    // 9. CAMBIAR ESTADO DE UN EVENTO (BORRADOR, PUBLICADO, CANCELADO)
+    @Override
+    @Transactional
+    public EventoResponse cambiarEstado(Integer id, String nuevoEstado) {
+
+        Evento evento = eventoRepository.findById(id).orElse(null);
+
+        if (evento == null) {
+            throw new RuntimeException("No existe el evento con ID: " + id);
+        }
+
+        String estadoAnterior = (evento.getEstado() != null) ? evento.getEstado().name() : null;
+        evento.setEstado(Evento.estadoevento.valueOf(nuevoEstado.toUpperCase()));
+
+        Evento guardado = eventoRepository.save(evento);
+
+        // Registro automático en el historial de auditoría CambioEvento
+        cambioEventoService.registrarCambio(id, "estado", estadoAnterior, nuevoEstado);
+
+        EventoResponse dto = eventoMapper.aResponse(guardado);
+        return dto;
+    }
+
+    // 10. OBTENER AGENDA DEL USUARIO ACTUAL
+    @Override
+    @Transactional(readOnly = true)
+    public List<EventoResponse> obtenerAgendaUsuarioActual(String tipo) {
+
+        List<Evento> listaEntidades = eventoRepository.findAll();
+        List<EventoResponse> listaRespuestas = new ArrayList<>();
+
+        for (Evento evento : listaEntidades) {
+            EventoResponse dto = eventoMapper.aResponse(evento);
+            listaRespuestas.add(dto);
+        }
+
+        return listaRespuestas;
+    }
+
+    // 11. ELIMINAR EVENTO POR ID
     @Override
     @Transactional
     public void eliminar(Integer id) {
 
-        // PASO A: Comprobar si existe el evento en la BD
         boolean existe = eventoRepository.existsById(id);
 
         if (!existe) {
             throw new RuntimeException("No se puede eliminar. No existe el evento con ID: " + id);
         }
 
-        // PASO B: Eliminar de PostgreSQL
         eventoRepository.deleteById(id);
     }
 }
