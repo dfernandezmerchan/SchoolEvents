@@ -11,4 +11,5 @@ public interface CategoriaService {
     CategoriaResponse buscarPorId(Integer id);
     CategoriaResponse crear(CategoriaRequest request);
     CategoriaResponse actualizar(Integer id, CategoriaRequest request);
+    void eliminar(Integer id);
 }

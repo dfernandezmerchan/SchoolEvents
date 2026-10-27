@@ -102,5 +102,19 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     }
 
+    @Transactional
+    @Override
+    public void eliminar(Integer id) {
+
+        boolean existe = categoriaRepository.existsById(id);
+
+        if (!existe) {
+            throw new RuntimeException(("No se puede eliminar. No existe el lugar con ID: " + id));
+        }
+
+        categoriaRepository.deleteById(id);
+
+    }
+
 
 }
