@@ -81,4 +81,26 @@ public class CategoriaServiceImpl implements CategoriaService {
         // PASO D: Devolvemos el DTO
         return categoriaMapper.aResponse(entidadGuardada);
     }
+
+    @Override
+    @Transactional
+    public CategoriaResponse actualizar(Integer id, CategoriaRequest request) {
+        Categoria categoriaExistente = categoriaRepository.findById(id).orElse(null);
+
+        if (categoriaExistente == null) {
+            throw new RuntimeException("No se puede actualizar. No existe la categoría ocn ID: " + id);
+        }
+
+        categoriaExistente.setNombre(request.nombre());
+        categoriaExistente.setColor(request.color());
+        categoriaExistente.setIcono(request.icono());
+
+        Categoria actualizado = categoriaRepository.save(categoriaExistente);
+
+        CategoriaResponse dto = categoriaMapper.aResponse(actualizado);
+        return dto;
+
+    }
+
+
 }
