@@ -4,6 +4,7 @@ import es.safareyes.schoolevents.dto.request.LugarRequest;
 import es.safareyes.schoolevents.dto.response.LugarResponse;
 import es.safareyes.schoolevents.servicios.LugarService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/lugares")
+@AllArgsConstructor
 public class LugarController {
 
-    private final LugarService lugarService;
-
-    public LugarController(LugarService lugarService) {
-        this.lugarService = lugarService;
-    }
+    private LugarService lugarService;
 
     // 1. OBTERNER TODOS LOS LUGARES
     @GetMapping

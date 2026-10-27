@@ -4,6 +4,7 @@ import es.safareyes.schoolevents.dto.request.CursoRequest;
 import es.safareyes.schoolevents.dto.response.CursoResponse;
 import es.safareyes.schoolevents.servicios.CursoService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cursos")
+@AllArgsConstructor
 public class CursoController {
 
-    private final CursoService cursoService;
-
-    public CursoController(CursoService cursoService) {
-        this.cursoService = cursoService;
-    }
+    private CursoService cursoService;
 
     // GET: /api/cursos
     @GetMapping

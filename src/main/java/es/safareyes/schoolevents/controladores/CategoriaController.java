@@ -1,12 +1,10 @@
 package es.safareyes.schoolevents.controladores;
 
 import es.safareyes.schoolevents.dto.request.CategoriaRequest;
-import es.safareyes.schoolevents.dto.request.CursoRequest;
 import es.safareyes.schoolevents.dto.response.CategoriaResponse;
-import es.safareyes.schoolevents.dto.response.CursoResponse;
 import es.safareyes.schoolevents.servicios.CategoriaService;
-import es.safareyes.schoolevents.servicios.CursoService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categoria")
+@AllArgsConstructor
 public class CategoriaController {
 
-    private final CategoriaService categoriaService;
-
-    public CategoriaController(CategoriaService categoriaService) {
-        this.categoriaService = categoriaService;
-    }
+    private CategoriaService categoriaService;
 
     // GET: /api/categoria
     @GetMapping

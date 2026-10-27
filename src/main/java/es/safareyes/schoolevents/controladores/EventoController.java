@@ -4,6 +4,7 @@ import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.EventoResponse;
 import es.safareyes.schoolevents.servicios.EventoService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/eventos")
+@AllArgsConstructor
 public class EventoController {
 
-    private final EventoService eventoService;
-
-    public EventoController(EventoService eventoService) {
-        this.eventoService = eventoService;
-    }
+    private EventoService eventoService;
 
     // 1. GET /api/v1/eventos - Listado paginado con filtros (Público)
     @GetMapping
