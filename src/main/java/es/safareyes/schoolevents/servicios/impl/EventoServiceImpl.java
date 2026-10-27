@@ -9,6 +9,7 @@ import es.safareyes.schoolevents.repositorios.ICategoriaRepository;
 import es.safareyes.schoolevents.repositorios.IEventoRepository;
 import es.safareyes.schoolevents.servicios.CambioEventoService;
 import es.safareyes.schoolevents.servicios.EventoService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,22 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class EventoServiceImpl implements EventoService {
 
-    private final IEventoRepository eventoRepository;
-    private final ICategoriaRepository categoriaRepository;
-    private final EventoMapper eventoMapper;
-    private final CambioEventoService cambioEventoService;
-
-    public EventoServiceImpl(IEventoRepository eventoRepository,
-                             ICategoriaRepository categoriaRepository,
-                             EventoMapper eventoMapper,
-                             CambioEventoService cambioEventoService) {
-        this.eventoRepository = eventoRepository;
-        this.categoriaRepository = categoriaRepository;
-        this.eventoMapper = eventoMapper;
-        this.cambioEventoService = cambioEventoService;
-    }
+    private IEventoRepository eventoRepository;
+    private ICategoriaRepository categoriaRepository;
+    private EventoMapper eventoMapper;
+    private CambioEventoService cambioEventoService;
 
     // 1. LISTAR TODAS LAS PUBLICACIONES / EVENTOS
     @Override
