@@ -45,11 +45,11 @@ public class TestRepositorioEvento {
         }
     }
 
-    @Test
-    void filtrarEventosCategoria() {
-        //Categorias posibles: Tecnología, Deportes, Cultura, Ocio, Formación
-        imprimirEventos(eventos.findByCategoria_NombreOrderByFechainiAsc("Deportes"));
-    }
+//    @Test
+//    void filtrarEventosCategoria() {
+//        //Categorias posibles: Tecnología, Deportes, Cultura, Ocio, Formación
+//        imprimirEventos(eventos.findByCategoria_NombreOrderByFechainiAsc("Deportes"));
+//    }
 
     @Test
     void filtrarEventosCursos() {

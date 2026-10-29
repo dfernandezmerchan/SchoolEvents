@@ -42,12 +42,12 @@ public class EventoServiceImpl implements EventoService {
         return listaRespuestas;
     }
 
-    // 2. LISTAR EVENTOS POR CATEGORÍA
+    // 2. LISTAR EVENTOS CON FILTRO D CATEGORIA Y ESTADO
     @Override
     @Transactional(readOnly = true)
-    public List<EventoResponse> listarPorCategoria(String categoria) {
+    public List<EventoResponse> listarConFiltros(Integer idcategoria, Evento.estadoevento estado) {
 
-        List<Evento> listaEntidades = eventoRepository.findByCategoria_NombreOrderByFechainiAsc(categoria);
+        List<Evento> listaEntidades = eventoRepository.findByCategoria_IdAndEstadoOrderByFechainiAsc(idcategoria, estado);
         List<EventoResponse> listaRespuestas = new ArrayList<>();
 
         for (Evento evento : listaEntidades) {

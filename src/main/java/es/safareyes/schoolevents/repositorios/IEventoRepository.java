@@ -16,9 +16,10 @@ import java.util.List;
 @Repository
 public interface IEventoRepository extends JpaRepository<Evento, Integer> {
 
-    //FILTRAR POR CATEGORIA
+    //FILTRAR POR CATEGORIA y estado
+
     @EntityGraph(attributePaths = {"categoria", "cursos", "lugar", "organizador"})
-    List<Evento> findByCategoria_NombreOrderByFechainiAsc(String categoria);
+    List<Evento> findByCategoria_IdAndEstadoOrderByFechainiAsc(Integer categoria_id, Evento.estadoevento estado);
 
     //FILTRAR POR Curso
 

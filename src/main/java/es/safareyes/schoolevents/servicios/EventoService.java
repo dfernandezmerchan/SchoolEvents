@@ -2,6 +2,7 @@ package es.safareyes.schoolevents.servicios;
 
 import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.EventoResponse;
+import es.safareyes.schoolevents.modelos.Evento;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,7 +12,7 @@ public interface EventoService {
     // 1. Consultas y lecturas
     List<EventoResponse> listarTodas();
     EventoResponse buscarPorId(Integer id);
-    List<EventoResponse> listarPorCategoria(String categoria);
+    List<EventoResponse> listarConFiltros(Integer categoria, Evento.estadoevento estado);
     List<EventoResponse> buscarPorTitulo(String titulo);
     List<EventoResponse> buscarEntreFechas(LocalDateTime desde, LocalDateTime hasta);
 
