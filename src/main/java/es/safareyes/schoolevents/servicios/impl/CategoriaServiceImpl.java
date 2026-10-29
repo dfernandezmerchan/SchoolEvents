@@ -6,6 +6,7 @@ import es.safareyes.schoolevents.mapper.CategoriaMapper;
 import es.safareyes.schoolevents.modelos.Categoria;
 import es.safareyes.schoolevents.repositorios.ICategoriaRepository;
 import es.safareyes.schoolevents.servicios.CategoriaService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,17 +15,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class CategoriaServiceImpl implements CategoriaService {
 
     // Mis dos ayudantes principales
-    private final ICategoriaRepository categoriaRepository;
-    private final CategoriaMapper categoriaMapper;
-
-    // Inyección de dependencias por constructor
-    public CategoriaServiceImpl(ICategoriaRepository categoriaRepository, CategoriaMapper categoriaMapper) {
-        this.categoriaRepository = categoriaRepository;
-        this.categoriaMapper = categoriaMapper;
-    }
+    private ICategoriaRepository categoriaRepository;
+    private CategoriaMapper categoriaMapper;
 
     // 1. OBTENER TODAS LAS CATEGORÍAS
     @Override

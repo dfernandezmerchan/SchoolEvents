@@ -6,6 +6,7 @@ import es.safareyes.schoolevents.mapper.CursoMapper;
 import es.safareyes.schoolevents.modelos.Curso;
 import es.safareyes.schoolevents.repositorios.ICursoRepository;
 import es.safareyes.schoolevents.servicios.CursoService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,20 +14,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class CursoServiceImpl implements CursoService {
 
-    private final ICursoRepository cursoRepository;
-    private final CursoMapper cursoMapper;
-
-    public CursoServiceImpl(ICursoRepository cursoRepository, CursoMapper cursoMapper) {
-        this.cursoRepository = cursoRepository;
-        this.cursoMapper = cursoMapper;
-    }
+    private ICursoRepository cursoRepository;
+    private CursoMapper cursoMapper;
 
     // 1. LISTAR TODOS LOS CURSOS
     @Override
     @Transactional(readOnly = true)
-    public List<CursoResponse> listarTodos() {
+    public List<CursoResponse>  listarTodos() {
 
         // PASO A: Traer todos los cursos de PostgreSQL
         List<Curso> listaEntidades = cursoRepository.findAll();

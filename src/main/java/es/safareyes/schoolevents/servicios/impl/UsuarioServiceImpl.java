@@ -8,6 +8,7 @@ import es.safareyes.schoolevents.modelos.Usuario;
 import es.safareyes.schoolevents.repositorios.ICursoRepository;
 import es.safareyes.schoolevents.repositorios.IUsuarioRepository;
 import es.safareyes.schoolevents.servicios.UsuarioService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,19 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService {
 
-    private final IUsuarioRepository usuarioRepository;
-    private final ICursoRepository cursoRepository;
-    private final UsuarioMapper usuarioMapper;
-
-    public UsuarioServiceImpl(IUsuarioRepository usuarioRepository,
-                              ICursoRepository cursoRepository,
-                              UsuarioMapper usuarioMapper) {
-        this.usuarioRepository = usuarioRepository;
-        this.cursoRepository = cursoRepository;
-        this.usuarioMapper = usuarioMapper;
-    }
+    private IUsuarioRepository usuarioRepository;
+    private ICursoRepository cursoRepository;
+    private UsuarioMapper usuarioMapper;
 
     // 1. LISTAR TODOS
     @Override

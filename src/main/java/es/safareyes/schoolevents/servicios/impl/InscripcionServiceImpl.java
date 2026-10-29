@@ -8,6 +8,7 @@ import es.safareyes.schoolevents.modelos.Inscripcion;
 import es.safareyes.schoolevents.modelos.Usuario;
 import es.safareyes.schoolevents.repositorios.*;
 import es.safareyes.schoolevents.servicios.InscripcionService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,23 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class InscripcionServiceImpl implements InscripcionService {
 
     // Necesitamos 3 repositorios (Inscripcion, Usuario y Evento) y el Mapper
-    private final IInscripcionRepository inscripcionRepository;
-    private final IUsuarioRepository usuarioRepository;
-    private final IEventoRepository eventoRepository;
-    private final InscripcionMapper inscripcionMapper;
-
-    public InscripcionServiceImpl(IInscripcionRepository inscripcionRepository,
-                                  IUsuarioRepository usuarioRepository,
-                                  IEventoRepository eventoRepository,
-                                  InscripcionMapper inscripcionMapper) {
-        this.inscripcionRepository = inscripcionRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.eventoRepository = eventoRepository;
-        this.inscripcionMapper = inscripcionMapper;
-    }
+    private IInscripcionRepository inscripcionRepository;
+    private IUsuarioRepository usuarioRepository;
+    private IEventoRepository eventoRepository;
+    private InscripcionMapper inscripcionMapper;
 
     // 1. INSCRIBIR A UN USUARIO EN UN EVENTO
     @Override

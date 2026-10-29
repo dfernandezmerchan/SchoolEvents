@@ -10,6 +10,7 @@ import es.safareyes.schoolevents.repositorios.IEventoRepository;
 import es.safareyes.schoolevents.repositorios.INotificacionRepository;
 import es.safareyes.schoolevents.repositorios.IUsuarioRepository;
 import es.safareyes.schoolevents.servicios.NotificacionService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,22 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class NotificacionServiceImpl implements NotificacionService {
 
-    private final INotificacionRepository notificacionRepository;
-    private final IUsuarioRepository usuarioRepository;
-    private final IEventoRepository eventoRepository;
-    private final NotificacionMapper notificacionMapper;
-
-    public NotificacionServiceImpl(INotificacionRepository notificacionRepository,
-                                   IUsuarioRepository usuarioRepository,
-                                   IEventoRepository eventoRepository,
-                                   NotificacionMapper notificacionMapper) {
-        this.notificacionRepository = notificacionRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.eventoRepository = eventoRepository;
-        this.notificacionMapper = notificacionMapper;
-    }
+    private INotificacionRepository notificacionRepository;
+    private IUsuarioRepository usuarioRepository;
+    private IEventoRepository eventoRepository;
+    private NotificacionMapper notificacionMapper;
 
     // 1. LISTAR TODAS LAS NOTIFICACIONES
     @Override

@@ -7,6 +7,7 @@ import es.safareyes.schoolevents.modelos.Evento;
 import es.safareyes.schoolevents.repositorios.ICambioEventoRepository;
 import es.safareyes.schoolevents.repositorios.IEventoRepository;
 import es.safareyes.schoolevents.servicios.CambioEventoService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,19 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class CambioEventoServiceImpl implements CambioEventoService {
 
-    private final ICambioEventoRepository cambioEventoRepository;
-    private final IEventoRepository eventoRepository;
-    private final CambioEventoMapper cambioEventoMapper;
-
-    public CambioEventoServiceImpl(ICambioEventoRepository cambioEventoRepository,
-                                   IEventoRepository eventoRepository,
-                                   CambioEventoMapper cambioEventoMapper) {
-        this.cambioEventoRepository = cambioEventoRepository;
-        this.eventoRepository = eventoRepository;
-        this.cambioEventoMapper = cambioEventoMapper;
-    }
+    private ICambioEventoRepository cambioEventoRepository;
+    private IEventoRepository eventoRepository;
+    private CambioEventoMapper cambioEventoMapper;
 
     // 1. LISTAR TODOS LOS CAMBIOS
     @Override

@@ -8,6 +8,7 @@ import es.safareyes.schoolevents.modelos.Publicacion;
 import es.safareyes.schoolevents.repositorios.IFotoRepository;
 import es.safareyes.schoolevents.repositorios.IPublicacionRepository;
 import es.safareyes.schoolevents.servicios.FotoService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,19 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class FotoServiceImpl implements FotoService {
 
-    private final IFotoRepository fotoRepository;
-    private final IPublicacionRepository publicacionRepository;
-    private final FotoMapper fotoMapper;
-
-    public FotoServiceImpl(IFotoRepository fotoRepository,
-                           IPublicacionRepository publicacionRepository,
-                           FotoMapper fotoMapper) {
-        this.fotoRepository = fotoRepository;
-        this.publicacionRepository = publicacionRepository;
-        this.fotoMapper = fotoMapper;
-    }
+    private IFotoRepository fotoRepository;
+    private IPublicacionRepository publicacionRepository;
+    private FotoMapper fotoMapper;
 
     // 1. LISTAR TODAS LAS FOTOS
     @Override

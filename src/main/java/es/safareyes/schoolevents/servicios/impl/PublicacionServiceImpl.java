@@ -10,6 +10,7 @@ import es.safareyes.schoolevents.repositorios.IEventoRepository;
 import es.safareyes.schoolevents.repositorios.IPublicacionRepository;
 import es.safareyes.schoolevents.repositorios.IUsuarioRepository;
 import es.safareyes.schoolevents.servicios.PublicacionService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,22 +19,13 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class PublicacionServiceImpl implements PublicacionService {
 
-    private final IPublicacionRepository publicacionRepository;
-    private final IEventoRepository eventoRepository;
-    private final IUsuarioRepository usuarioRepository;
-    private final PublicacionMapper publicacionMapper;
-
-    public PublicacionServiceImpl(IPublicacionRepository publicacionRepository,
-                                  IEventoRepository eventoRepository,
-                                  IUsuarioRepository usuarioRepository,
-                                  PublicacionMapper publicacionMapper) {
-        this.publicacionRepository = publicacionRepository;
-        this.eventoRepository = eventoRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.publicacionMapper = publicacionMapper;
-    }
+    private IPublicacionRepository publicacionRepository;
+    private IEventoRepository eventoRepository;
+    private IUsuarioRepository usuarioRepository;
+    private PublicacionMapper publicacionMapper;
 
     // 1. LISTAR TODAS LAS PUBLICACIONES
     @Override

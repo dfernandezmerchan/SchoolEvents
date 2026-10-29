@@ -6,6 +6,7 @@ import es.safareyes.schoolevents.mapper.LugarMapper;
 import es.safareyes.schoolevents.modelos.Lugar;
 import es.safareyes.schoolevents.repositorios.ILugarRepository;
 import es.safareyes.schoolevents.servicios.LugarService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class LugarServiceImpl implements LugarService {
 
-    private final ILugarRepository lugarRepository;
-    private final LugarMapper lugarMapper;
-
-    public LugarServiceImpl(ILugarRepository lugarRepository, LugarMapper lugarMapper) {
-        this.lugarRepository = lugarRepository;
-        this.lugarMapper = lugarMapper;
-    }
+    private ILugarRepository lugarRepository;
+    private LugarMapper lugarMapper;
 
     // 1. LISTAR TODOS
     @Override
