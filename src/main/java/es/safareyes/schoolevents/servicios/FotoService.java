@@ -9,7 +9,7 @@ public interface FotoService {
     List<FotoResponse> listarTodas();
     List<FotoResponse> listarPorPublicacion(Integer publicacionId);
     FotoResponse buscarPorId(Integer id);
-    FotoResponse crear(FotoRequest request);
+    FotoResponse crearFoto(Integer publicacionId, FotoRequest request);
     FotoResponse actualizar(Integer id, FotoRequest request);
     void eliminar(Integer id);
 }

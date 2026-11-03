@@ -73,25 +73,26 @@ public class FotoServiceImpl implements FotoService {
     // 4. CREAR FOTO
     @Override
     @Transactional
-    public FotoResponse crear(FotoRequest request) {
+    public FotoResponse crearFoto(Integer publicacionId, FotoRequest request) {
 
-        Foto nuevaFoto = fotoMapper.aEntidad(request);
+        // 1. Buscamos la publicación por el ID que viene en la URL
+        Publicacion publicacionEncontrada = publicacionRepository.findById(publicacionId).orElse(null);
 
-        // Buscamos la publicación relacionada en PostgreSQL si viene su ID
-        if (request.idPublicacion() != null) {
-            Publicacion publicacionEncontrada = publicacionRepository.findById(request.idPublicacion()).orElse(null);
-
-            if (publicacionEncontrada == null) {
-                throw new RuntimeException("No existe la publicación con el ID: " + request.idPublicacion());
-            }
-
-            nuevaFoto.setPublicacion(publicacionEncontrada);
+        if(publicacionEncontrada == null) {
+            throw new RuntimeException("No se puede actualizar. No existe el lugar con ID: " + publicacionId);
         }
 
+        // 2. Mapeamos el DTO a la entidad Foto
+        Foto nuevaFoto = fotoMapper.aEntidad(request);
+
+        // 3. Asignamos la publicación encontrada (relación obligatoria)
+        nuevaFoto.setPublicacion(publicacionEncontrada);
+
+        // 4. Guardamos en la base de datos
         Foto guardada = fotoRepository.save(nuevaFoto);
 
-        FotoResponse dto = fotoMapper.aResponse(guardada);
-        return dto;
+        // 5. Retornamos el DTO de respuesta
+        return fotoMapper.aResponse(guardada);
     }
 
     // 5. ACTUALIZAR FOTO
