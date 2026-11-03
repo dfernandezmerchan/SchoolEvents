@@ -82,4 +82,17 @@ public class CategoriaServiceImpl implements CategoriaService {
         // PASO D: Devolvemos el DTO
         return categoriaMapper.aResponse(entidadGuardada);
     }
+
+    //eliminar categoria
+    public void eliminar(Integer id) {
+
+        boolean existe = categoriaRepository.existsById(id);
+
+        if (!existe) {
+            throw new RuntimeException("No se puede eliminar. No existe el evento con ID: " + id);
+        }
+
+        categoriaRepository.deleteById(id);
+    }
+
 }

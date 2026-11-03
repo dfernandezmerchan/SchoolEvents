@@ -9,4 +9,5 @@ public interface CategoriaService {
     List<CategoriaResponse> listarTodas();
     CategoriaResponse buscarPorId(Integer id);
     CategoriaResponse crear(CategoriaRequest request);
+    void eliminar(Integer id);
 }
