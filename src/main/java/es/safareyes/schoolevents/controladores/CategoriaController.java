@@ -1,7 +1,9 @@
 package es.safareyes.schoolevents.controladores;
 
 import es.safareyes.schoolevents.dto.request.CategoriaRequest;
+import es.safareyes.schoolevents.dto.request.LugarRequest;
 import es.safareyes.schoolevents.dto.response.CategoriaResponse;
+import es.safareyes.schoolevents.dto.response.LugarResponse;
 import es.safareyes.schoolevents.servicios.CategoriaService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -38,5 +40,20 @@ public class CategoriaController {
         CategoriaResponse nuevaCategoria = categoriaService.crear(request);
         return new ResponseEntity<>(nuevaCategoria, HttpStatus.CREATED);
     }
+
+    // delete /api/categoria/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+        categoriaService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 4. ACTUALIZAR UNa categoria EXISTENTE
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoriaResponse> actualizar(@PathVariable Integer id, @Valid @RequestBody CategoriaRequest request) {
+        CategoriaResponse actualizado = categoriaService.actualizar(id, request);
+        return ResponseEntity.ok(actualizado);
+    }
+
 
 }
