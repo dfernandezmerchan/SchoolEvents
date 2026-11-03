@@ -1,9 +1,14 @@
 package es.safareyes.schoolevents.servicios.impl;
 
 import es.safareyes.schoolevents.dto.request.CategoriaRequest;
+import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.CategoriaResponse;
+import es.safareyes.schoolevents.dto.response.EventoResponse;
+import es.safareyes.schoolevents.dto.response.LugarResponse;
 import es.safareyes.schoolevents.mapper.CategoriaMapper;
 import es.safareyes.schoolevents.modelos.Categoria;
+import es.safareyes.schoolevents.modelos.Evento;
+import es.safareyes.schoolevents.modelos.Lugar;
 import es.safareyes.schoolevents.repositorios.ICategoriaRepository;
 import es.safareyes.schoolevents.servicios.CategoriaService;
 import lombok.AllArgsConstructor;
@@ -95,4 +100,25 @@ public class CategoriaServiceImpl implements CategoriaService {
         categoriaRepository.deleteById(id);
     }
 
+    //actualizar categoria
+    @Override
+    @Transactional
+    public CategoriaResponse actualizar(Integer id, CategoriaRequest request) {
+
+        Categoria categoriaExiste = categoriaRepository.findById(id).orElse(null);
+
+        if (categoriaExiste == null) {
+            throw new RuntimeException("No se puede actualizar. No existe el evento con ID: " + id);
+        }
+
+        // Se mapean los nuevos valores sobre la entidad recuperada
+        categoriaExiste.setNombre(request.nombre());
+        categoriaExiste.setColor(request.color());
+        categoriaExiste.setIcono(request.icono());
+
+        Categoria actualizado = categoriaRepository.save(categoriaExiste);
+
+        CategoriaResponse dto = categoriaMapper.aResponse(actualizado);
+        return dto;
+    }
 }
