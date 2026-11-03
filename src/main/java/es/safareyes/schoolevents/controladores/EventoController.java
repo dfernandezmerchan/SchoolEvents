@@ -2,6 +2,7 @@ package es.safareyes.schoolevents.controladores;
 
 import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.EventoResponse;
+import es.safareyes.schoolevents.modelos.Evento;
 import es.safareyes.schoolevents.servicios.EventoService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -18,17 +19,28 @@ public class EventoController {
 
     private EventoService eventoService;
 
-    // 1. GET /api/v1/eventos - Listado paginado con filtros (Público)
+    // 1. GET /api/v1/eventos - consultar todos los eventos
     @GetMapping
     public ResponseEntity<List<EventoResponse>> listarEventos(
-            @RequestParam(required = false) Integer categoriaId,
-            @RequestParam(required = false) String estado,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         List<EventoResponse> eventos = eventoService.listarTodas();
         return ResponseEntity.ok(eventos);
     }
+
+    //listar con filtros
+    @GetMapping("/filtros")
+    public ResponseEntity<List<EventoResponse>> listarEventosFiltros(
+            @RequestParam(required = false) Integer categoriaId,
+            @RequestParam(required = false) Evento.estadoevento estado,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        List<EventoResponse> eventos = eventoService.listarConFiltros(categoriaId,estado);
+        return ResponseEntity.ok(eventos);
+    }
+
 
     // 2. GET /api/v1/eventos/calendario?mes=&anio= - Eventos del mes (Público)
     @GetMapping("/calendario")

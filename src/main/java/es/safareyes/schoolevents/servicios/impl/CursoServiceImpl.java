@@ -23,7 +23,7 @@ public class CursoServiceImpl implements CursoService {
     // 1. LISTAR TODOS LOS CURSOS
     @Override
     @Transactional(readOnly = true)
-    public List<CursoResponse> listarTodos() {
+    public List<CursoResponse>  listarTodos() {
 
         // PASO A: Traer todos los cursos de PostgreSQL
         List<Curso> listaEntidades = cursoRepository.findAll();

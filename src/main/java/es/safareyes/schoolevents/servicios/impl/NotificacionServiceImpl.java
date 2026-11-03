@@ -26,7 +26,6 @@ public class NotificacionServiceImpl implements NotificacionService {
     private IEventoRepository eventoRepository;
     private NotificacionMapper notificacionMapper;
 
-
     // 1. LISTAR TODAS LAS NOTIFICACIONES
     @Override
     @Transactional(readOnly = true)

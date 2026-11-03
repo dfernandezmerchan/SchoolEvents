@@ -1,9 +1,14 @@
 package es.safareyes.schoolevents.servicios.impl;
 
 import es.safareyes.schoolevents.dto.request.CategoriaRequest;
+import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.CategoriaResponse;
+import es.safareyes.schoolevents.dto.response.EventoResponse;
+import es.safareyes.schoolevents.dto.response.LugarResponse;
 import es.safareyes.schoolevents.mapper.CategoriaMapper;
 import es.safareyes.schoolevents.modelos.Categoria;
+import es.safareyes.schoolevents.modelos.Evento;
+import es.safareyes.schoolevents.modelos.Lugar;
 import es.safareyes.schoolevents.repositorios.ICategoriaRepository;
 import es.safareyes.schoolevents.servicios.CategoriaService;
 import lombok.AllArgsConstructor;
@@ -18,6 +23,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class CategoriaServiceImpl implements CategoriaService {
 
+    // Mis dos ayudantes principales
     private ICategoriaRepository categoriaRepository;
     private CategoriaMapper categoriaMapper;
 
@@ -82,39 +88,37 @@ public class CategoriaServiceImpl implements CategoriaService {
         return categoriaMapper.aResponse(entidadGuardada);
     }
 
-    @Override
-    @Transactional
-    public CategoriaResponse actualizar(Integer id, CategoriaRequest request) {
-        Categoria categoriaExistente = categoriaRepository.findById(id).orElse(null);
-
-        if (categoriaExistente == null) {
-            throw new RuntimeException("No se puede actualizar. No existe la categoría ocn ID: " + id);
-        }
-
-        categoriaExistente.setNombre(request.nombre());
-        categoriaExistente.setColor(request.color());
-        categoriaExistente.setIcono(request.icono());
-
-        Categoria actualizado = categoriaRepository.save(categoriaExistente);
-
-        CategoriaResponse dto = categoriaMapper.aResponse(actualizado);
-        return dto;
-
-    }
-
-    @Transactional
-    @Override
+    //eliminar categoria
     public void eliminar(Integer id) {
 
         boolean existe = categoriaRepository.existsById(id);
 
         if (!existe) {
-            throw new RuntimeException(("No se puede eliminar. No existe el lugar con ID: " + id));
+            throw new RuntimeException("No se puede eliminar. No existe el evento con ID: " + id);
         }
 
         categoriaRepository.deleteById(id);
-
     }
 
+    //actualizar categoria
+    @Override
+    @Transactional
+    public CategoriaResponse actualizar(Integer id, CategoriaRequest request) {
 
+        Categoria categoriaExiste = categoriaRepository.findById(id).orElse(null);
+
+        if (categoriaExiste == null) {
+            throw new RuntimeException("No se puede actualizar. No existe el evento con ID: " + id);
+        }
+
+        // Se mapean los nuevos valores sobre la entidad recuperada
+        categoriaExiste.setNombre(request.nombre());
+        categoriaExiste.setColor(request.color());
+        categoriaExiste.setIcono(request.icono());
+
+        Categoria actualizado = categoriaRepository.save(categoriaExiste);
+
+        CategoriaResponse dto = categoriaMapper.aResponse(actualizado);
+        return dto;
+    }
 }

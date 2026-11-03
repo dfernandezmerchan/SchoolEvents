@@ -41,18 +41,19 @@ public class CategoriaController {
         return new ResponseEntity<>(nuevaCategoria, HttpStatus.CREATED);
     }
 
+    // delete /api/categoria/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+        categoriaService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
 
-    // PUT: /api/categoria/{id}
+    // 4. ACTUALIZAR UNa categoria EXISTENTE
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaResponse> actualizar(@PathVariable Integer id, @Valid @RequestBody CategoriaRequest request) {
         CategoriaResponse actualizado = categoriaService.actualizar(id, request);
         return ResponseEntity.ok(actualizado);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        categoriaService.eliminar(id);
-        return ResponseEntity.noContent().build();
-    }
 
 }

@@ -23,7 +23,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     private ICursoRepository cursoRepository;
     private UsuarioMapper usuarioMapper;
 
-
     // 1. LISTAR TODOS
     @Override
     @Transactional(readOnly = true)
