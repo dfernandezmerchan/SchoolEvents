@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
+import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.EventoResponse;
 import es.safareyes.schoolevents.mapper.EventoMapper;
@@ -46,6 +47,10 @@ public class EventoServiceImpl implements EventoService {
     @Override
     @Transactional(readOnly = true)
     public List<EventoResponse> listarConFiltros(Integer idcategoria, Evento.estadoevento estado) {
+
+        if(!categoriaRepository.existsById(idcategoria)) {
+            throw new RecursoNoEncontradoException("no se ha encontrado la categoria especificada " + idcategoria);
+        }
 
         List<Evento> listaEntidades = eventoRepository.findByCategoria_IdAndEstadoOrderByFechainiAsc(idcategoria, estado);
         List<EventoResponse> listaRespuestas = new ArrayList<>();
@@ -117,7 +122,7 @@ public class EventoServiceImpl implements EventoService {
         Evento evento = eventoRepository.findById(id).orElse(null);
 
         if (evento == null) {
-            throw new RuntimeException("No existe ningún evento con el ID: " + id);
+            throw new RecursoNoEncontradoException("No existe ningún evento con el ID: " + id);
         }
 
         EventoResponse dto = eventoMapper.aResponse(evento);
@@ -135,7 +140,7 @@ public class EventoServiceImpl implements EventoService {
             Categoria categoriaEncontrada = categoriaRepository.findById(request.idCategoria()).orElse(null);
 
             if (categoriaEncontrada == null) {
-                throw new RuntimeException("No existe la categoría con el ID: " + request.idCategoria());
+                throw new RecursoNoEncontradoException("No existe la categoría con el ID: " + request.idCategoria());
             }
 
             nuevoEvento.setCategoria(categoriaEncontrada);
@@ -155,7 +160,7 @@ public class EventoServiceImpl implements EventoService {
         Evento eventoExistente = eventoRepository.findById(id).orElse(null);
 
         if (eventoExistente == null) {
-            throw new RuntimeException("No se puede actualizar. No existe el evento con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede actualizar. No existe el evento con ID: " + id);
         }
 
         // Se mapean los nuevos valores sobre la entidad recuperada
@@ -168,7 +173,7 @@ public class EventoServiceImpl implements EventoService {
         if (request.idCategoria() != null) {
             Categoria categoriaEncontrada = categoriaRepository.findById(request.idCategoria()).orElse(null);
             if (categoriaEncontrada == null) {
-                throw new RuntimeException("No existe la categoría con el ID: " + request.idCategoria());
+                throw new RecursoNoEncontradoException("No existe la categoría con el ID: " + request.idCategoria());
             }
             eventoExistente.setCategoria(categoriaEncontrada);
         }
@@ -187,7 +192,7 @@ public class EventoServiceImpl implements EventoService {
         Evento evento = eventoRepository.findById(id).orElse(null);
 
         if (evento == null) {
-            throw new RuntimeException("No existe el evento con ID: " + id);
+            throw new RecursoNoEncontradoException("No existe el evento con ID: " + id);
         }
 
         String estadoAnterior = (evento.getEstado() != null) ? evento.getEstado().name() : null;
@@ -200,22 +205,6 @@ public class EventoServiceImpl implements EventoService {
 
         EventoResponse dto = eventoMapper.aResponse(guardado);
         return dto;
-    }
-
-    // 10. OBTENER AGENDA DEL USUARIO ACTUAL
-    @Override
-    @Transactional(readOnly = true)
-    public List<EventoResponse> obtenerAgendaUsuarioActual(String tipo) {
-
-        List<Evento> listaEntidades = eventoRepository.findAll();
-        List<EventoResponse> listaRespuestas = new ArrayList<>();
-
-        for (Evento evento : listaEntidades) {
-            EventoResponse dto = eventoMapper.aResponse(evento);
-            listaRespuestas.add(dto);
-        }
-
-        return listaRespuestas;
     }
 
     // 11. ELIMINAR EVENTO POR ID

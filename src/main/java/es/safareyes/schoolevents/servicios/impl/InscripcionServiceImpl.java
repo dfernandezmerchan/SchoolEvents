@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
+import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.request.InscripcionRequest;
 import es.safareyes.schoolevents.dto.response.InscripcionResponse;
 import es.safareyes.schoolevents.mapper.InscripcionMapper;
@@ -33,13 +34,13 @@ public class InscripcionServiceImpl implements InscripcionService {
         // PASO A: Comprobar si el usuario existe en PostgreSQL
         Usuario usuario = usuarioRepository.findById(request.idUsuario()).orElse(null);
         if (usuario == null) {
-            throw new RuntimeException("No existe ningún usuario con el ID: " + request.idUsuario());
+            throw new RecursoNoEncontradoException("No existe ningún usuario con el ID: " + request.idUsuario());
         }
 
         // PASO B: Comprobar si el evento existe en PostgreSQL
         Evento evento = eventoRepository.findById(request.idEvento()).orElse(null);
         if (evento == null) {
-            throw new RuntimeException("No existe ningún evento con el ID: " + request.idEvento());
+            throw new RecursoNoEncontradoException("No existe ningún evento con el ID: " + request.idEvento());
         }
 
         // PASO C: Convertir el DTO Request a la entidad Inscripcion
@@ -69,7 +70,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 
         // PASO B: Comprobar si existía la inscripción
         if (inscripcion == null) {
-            throw new RuntimeException("No se encontró la inscripción para el usuario "
+            throw new RecursoNoEncontradoException("No se encontró la inscripción para el usuario "
                     + idUsuario + " en el evento " + idEvento);
         }
 
@@ -97,10 +98,14 @@ public class InscripcionServiceImpl implements InscripcionService {
         return listaRespuestas;
     }
 
-    // 4. LISTAR INSCRIPCIONES DE UN USUARIO
+    // 4. agenda usuario
     @Override
     @Transactional(readOnly = true)
-    public List<InscripcionResponse> listarPorUsuario(Integer idUsuario) {
+    public List<InscripcionResponse> agendaUsuario(Integer idUsuario) {
+
+        if(!usuarioRepository.existsById(idUsuario)) {
+            throw new RecursoNoEncontradoException("No se ha encontrad ningún usuario con id " + idUsuario);
+        }
 
         // PASO A: Traer de PostgreSQL la lista de inscripciones de este usuario
         List<Inscripcion> listaEntidades = inscripcionRepository.findByUsuarioId(idUsuario);
@@ -125,7 +130,7 @@ public class InscripcionServiceImpl implements InscripcionService {
         Inscripcion inscripcion = inscripcionRepository.findById(id).orElse(null);
 
         if (inscripcion == null) {
-            throw new RuntimeException("No existe ninguna inscripción con el ID: " + id);
+            throw new RecursoNoEncontradoException("No existe ninguna inscripción con el ID: " + id);
         }
 
         InscripcionResponse dto = inscripcionMapper.aResponse(inscripcion);

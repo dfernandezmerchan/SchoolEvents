@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
+import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.request.FotoRequest;
 import es.safareyes.schoolevents.dto.response.FotoResponse;
 import es.safareyes.schoolevents.mapper.FotoMapper;
@@ -44,6 +45,10 @@ public class FotoServiceImpl implements FotoService {
     @Transactional(readOnly = true)
     public List<FotoResponse> listarPorPublicacion(Integer publicacionId) {
 
+        if(!publicacionRepository.existsById(publicacionId)) {
+            throw new RecursoNoEncontradoException("no se ha encontrado ninguna publicación con el id" + publicacionId);
+        }
+
         List<Foto> listaEntidades = fotoRepository.findByPublicacionId(publicacionId);
         List<FotoResponse> listaRespuestas = new ArrayList<>();
 
@@ -63,7 +68,7 @@ public class FotoServiceImpl implements FotoService {
         Foto foto = fotoRepository.findById(id).orElse(null);
 
         if (foto == null) {
-            throw new RuntimeException("No existe ninguna foto con el ID: " + id);
+            throw new RecursoNoEncontradoException("No existe ninguna foto con el ID: " + id);
         }
 
         FotoResponse dto = fotoMapper.aResponse(foto);
@@ -79,7 +84,7 @@ public class FotoServiceImpl implements FotoService {
         Publicacion publicacionEncontrada = publicacionRepository.findById(publicacionId).orElse(null);
 
         if(publicacionEncontrada == null) {
-            throw new RuntimeException("No se puede actualizar. No existe el lugar con ID: " + publicacionId);
+            throw new RecursoNoEncontradoException("No se puede actualizar. No existe el lugar con ID: " + publicacionId);
         }
 
         // 2. Mapeamos el DTO a la entidad Foto
@@ -103,7 +108,7 @@ public class FotoServiceImpl implements FotoService {
         Foto fotoExistente = fotoRepository.findById(id).orElse(null);
 
         if (fotoExistente == null) {
-            throw new RuntimeException("No se puede actualizar. No existe la foto con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede actualizar. No existe la foto con ID: " + id);
         }
 
         // Actualizamos la URL
@@ -114,7 +119,7 @@ public class FotoServiceImpl implements FotoService {
             Publicacion publicacionEncontrada = publicacionRepository.findById(request.idPublicacion()).orElse(null);
 
             if (publicacionEncontrada == null) {
-                throw new RuntimeException("No existe la publicación con el ID: " + request.idPublicacion());
+                throw new RecursoNoEncontradoException("No existe la publicación con el ID: " + request.idPublicacion());
             }
 
             fotoExistente.setPublicacion(publicacionEncontrada);
@@ -136,7 +141,7 @@ public class FotoServiceImpl implements FotoService {
         boolean existe = fotoRepository.existsById(id);
 
         if (!existe) {
-            throw new RuntimeException("No se puede eliminar. No existe la foto con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede eliminar. No existe la foto con ID: " + id);
         }
 
         fotoRepository.deleteById(id);

@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
+import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.request.PublicacionRequest;
 import es.safareyes.schoolevents.dto.response.PublicacionResponse;
 import es.safareyes.schoolevents.mapper.PublicacionMapper;
@@ -83,7 +84,7 @@ public class PublicacionServiceImpl implements PublicacionService {
         Publicacion publicacion = publicacionRepository.findById(id).orElse(null);
 
         if (publicacion == null) {
-            throw new RuntimeException("No existe ninguna publicación con el ID: " + id);
+            throw new RecursoNoEncontradoException("No existe ninguna publicación con el ID: " + id);
         }
 
         PublicacionResponse dto = publicacionMapper.aResponse(publicacion);
@@ -104,8 +105,9 @@ public class PublicacionServiceImpl implements PublicacionService {
         // Validar y asignar Evento
         if (request.idEvento() != null) {
             Evento evento = eventoRepository.findById(request.idEvento()).orElse(null);
+
             if (evento == null) {
-                throw new RuntimeException("No existe el evento con el ID: " + request.idEvento());
+                throw new RecursoNoEncontradoException( "No existe el evento con el ID: " + request.idEvento());
             }
             nuevaPublicacion.setEvento(evento);
         }
@@ -114,7 +116,7 @@ public class PublicacionServiceImpl implements PublicacionService {
         if (request.idUsuario() != null) {
             Usuario usuario = usuarioRepository.findById(request.idUsuario()).orElse(null);
             if (usuario == null) {
-                throw new RuntimeException("No existe el usuario con el ID: " + request.idUsuario());
+                throw new RecursoNoEncontradoException("No existe el usuario con el ID: " + request.idUsuario());
             }
             nuevaPublicacion.setUsuario(usuario);
         }
@@ -133,7 +135,7 @@ public class PublicacionServiceImpl implements PublicacionService {
         Publicacion publicacionExistente = publicacionRepository.findById(id).orElse(null);
 
         if (publicacionExistente == null) {
-            throw new RuntimeException("No se puede actualizar. No existe la publicación con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede actualizar. No existe la publicación con ID: " + id);
         }
 
         // Actualizar datos propios (se mantiene la fecha original de publicación intacta)

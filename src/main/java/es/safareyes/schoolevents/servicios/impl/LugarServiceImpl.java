@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
+import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.request.LugarRequest;
 import es.safareyes.schoolevents.dto.response.LugarResponse;
 import es.safareyes.schoolevents.mapper.LugarMapper;
@@ -44,7 +45,7 @@ public class LugarServiceImpl implements LugarService {
         Lugar lugar = lugarRepository.findById(id).orElse(null);
 
         if (lugar == null) {
-            throw new RuntimeException("No existe ningún lugar con el ID: " + id);
+            throw new RecursoNoEncontradoException("No existe el lugar con ID: " + id);
         }
 
         LugarResponse dto = lugarMapper.aResponse(lugar);
@@ -71,10 +72,10 @@ public class LugarServiceImpl implements LugarService {
         Lugar lugarExistente = lugarRepository.findById(id).orElse(null);
 
         if (lugarExistente == null) {
-            throw new RuntimeException("No se puede actualizar. No existe el lugar con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede actualizar. No existe el lugar con ID: " + id);
         }
 
-        // Se actualizan únicamente los campos de tu modelo Lugar
+        // Se actualizan únicamente los campos del modelo Lugar
         lugarExistente.setNombre(request.nombre());
         lugarExistente.setAforomaximo(request.aforoMaximo());
 
@@ -92,7 +93,7 @@ public class LugarServiceImpl implements LugarService {
         boolean existe = lugarRepository.existsById(id);
 
         if (!existe) {
-            throw new RuntimeException("No se puede eliminar. No existe el lugar con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede eliminar. No existe el lugar con ID: " + id);
         }
 
         lugarRepository.deleteById(id);

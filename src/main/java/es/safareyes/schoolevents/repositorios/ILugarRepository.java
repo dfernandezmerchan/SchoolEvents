@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ILugarRepository extends JpaRepository<Lugar, Integer> {
-
+    boolean existsByNombre(String nombre);
 }

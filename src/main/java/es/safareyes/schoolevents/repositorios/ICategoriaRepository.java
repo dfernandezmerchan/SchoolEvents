@@ -8,4 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ICategoriaRepository extends JpaRepository<Categoria, Integer> {
+    Integer id(Integer id);
 }

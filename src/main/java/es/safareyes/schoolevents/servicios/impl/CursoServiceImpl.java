@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
+import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.request.CursoRequest;
 import es.safareyes.schoolevents.dto.response.CursoResponse;
 import es.safareyes.schoolevents.mapper.CursoMapper;
@@ -50,7 +51,7 @@ public class CursoServiceImpl implements CursoService {
 
         // PASO B: Validación con 'if' tradicional
         if (curso == null) {
-            throw new RuntimeException("No existe ningún curso con el ID: " + id);
+            throw new RecursoNoEncontradoException("No existe ningún curso con el ID: " + id);
         }
 
         // PASO C: Convertir a DTO y devolver
@@ -83,7 +84,7 @@ public class CursoServiceImpl implements CursoService {
         Curso cursoExistente = cursoRepository.findById(id).orElse(null);
 
         if (cursoExistente == null) {
-            throw new RuntimeException("No se puede actualizar. No existe el curso con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede actualizar. No existe el curso con ID: " + id);
         }
 
         // PASO B: Modificar los campos directos de la entidad Curso
@@ -107,7 +108,7 @@ public class CursoServiceImpl implements CursoService {
         boolean existe = cursoRepository.existsById(id);
 
         if (!existe) {
-            throw new RuntimeException("No se puede eliminar. No existe el curso con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede eliminar. No existe el curso con ID: " + id);
         }
 
         // PASO B: Eliminar de la base de datos

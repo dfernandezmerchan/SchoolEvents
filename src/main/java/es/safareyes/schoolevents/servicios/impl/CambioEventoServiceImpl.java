@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
+import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.response.CambioEventoResponse;
 import es.safareyes.schoolevents.mapper.CambioEventoMapper;
 import es.safareyes.schoolevents.modelos.CambioEvento;
@@ -44,6 +45,10 @@ public class CambioEventoServiceImpl implements CambioEventoService {
     @Transactional(readOnly = true)
     public List<CambioEventoResponse> listarPorEvento(Integer eventoId) {
 
+        if(!eventoRepository.existsById(eventoId)) {
+            throw new RecursoNoEncontradoException("no se ha encontrado ningun evento con la id " + eventoId);
+        }
+
         List<CambioEvento> listaEntidades = cambioEventoRepository.findByEventoId(eventoId);
         List<CambioEventoResponse> listaRespuestas = new ArrayList<>();
 
@@ -63,7 +68,7 @@ public class CambioEventoServiceImpl implements CambioEventoService {
         CambioEvento cambio = cambioEventoRepository.findById(id).orElse(null);
 
         if (cambio == null) {
-            throw new RuntimeException("No existe ningún registro de cambio con el ID: " + id);
+            throw new RecursoNoEncontradoException("No existe ningún registro de cambio con el ID: " + id);
         }
 
         CambioEventoResponse dto = cambioEventoMapper.aResponse(cambio);
@@ -79,7 +84,7 @@ public class CambioEventoServiceImpl implements CambioEventoService {
         Evento evento = eventoRepository.findById(idEvento).orElse(null);
 
         if (evento == null) {
-            throw new RuntimeException("No existe el evento con el ID: " + idEvento);
+            throw new RecursoNoEncontradoException("No existe el evento con el ID: " + idEvento);
         }
 
         // Instanciar la entidad directamente
@@ -104,7 +109,7 @@ public class CambioEventoServiceImpl implements CambioEventoService {
         boolean existe = cambioEventoRepository.existsById(id);
 
         if (!existe) {
-            throw new RuntimeException("No se puede eliminar. No existe el registro de cambio con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede eliminar. No existe el registro de cambio con ID: " + id);
         }
 
         cambioEventoRepository.deleteById(id);

@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
+import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.request.CategoriaRequest;
 import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.CategoriaResponse;
@@ -62,7 +63,7 @@ public class CategoriaServiceImpl implements CategoriaService {
 
         // PASO B: Comprobamos si el resultado está vacío
         if (resultadoBusqueda.isEmpty()) {
-            throw new RuntimeException("No existe ninguna categoría con el ID: " + id);
+            throw new RecursoNoEncontradoException("No existe ninguna categoría con el ID: " + id);
         }
 
         // PASO C: Si existe, extraemos la entidad real de dentro del Optional
@@ -94,7 +95,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         boolean existe = categoriaRepository.existsById(id);
 
         if (!existe) {
-            throw new RuntimeException("No se puede eliminar. No existe el evento con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede eliminar. No existe el evento con ID: " + id);
         }
 
         categoriaRepository.deleteById(id);
@@ -108,7 +109,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         Categoria categoriaExiste = categoriaRepository.findById(id).orElse(null);
 
         if (categoriaExiste == null) {
-            throw new RuntimeException("No se puede actualizar. No existe el evento con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede actualizar. No existe el evento con ID: " + id);
         }
 
         // Se mapean los nuevos valores sobre la entidad recuperada

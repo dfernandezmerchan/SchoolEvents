@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
+import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.request.UsuarioRequest;
 import es.safareyes.schoolevents.dto.response.UsuarioResponse;
 import es.safareyes.schoolevents.mapper.UsuarioMapper;
@@ -46,8 +47,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         Usuario usuario = usuarioRepository.findById(id).orElse(null);
 
+
         if (usuario == null) {
-            throw new RuntimeException("No existe ningún usuario con el ID: " + id);
+            throw new RecursoNoEncontradoException("No existe ningún usuario con ID: " + id);
         }
 
         UsuarioResponse dto = usuarioMapper.aResponse(usuario);
@@ -67,7 +69,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             Curso cursoEncontrado = cursoRepository.findById(request.idCurso()).orElse(null);
 
             if (cursoEncontrado == null) {
-                throw new RuntimeException("No existe el curso con el ID: " + request.idCurso());
+                throw new RecursoNoEncontradoException("No existe el curso con el ID: " + request.idCurso());
             }
 
             nuevoUsuario.setCurso(cursoEncontrado);
@@ -90,7 +92,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuarioExistente = usuarioRepository.findById(id).orElse(null);
 
         if (usuarioExistente == null) {
-            throw new RuntimeException("No se puede actualizar. No existe el usuario con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede actualizar. No existe el usuario con ID: " + id);
         }
 
         // Actualizamos los campos directos coincidiendo con UsuarioRequest
@@ -107,7 +109,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             Curso cursoEncontrado = cursoRepository.findById(request.idCurso()).orElse(null);
 
             if (cursoEncontrado == null) {
-                throw new RuntimeException("No existe el curso con el ID: " + request.idCurso());
+                throw new RecursoNoEncontradoException("No existe el curso con el ID: " + request.idCurso());
             }
 
             usuarioExistente.setCurso(cursoEncontrado);
@@ -132,7 +134,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         boolean existe = usuarioRepository.existsById(id);
 
         if (!existe) {
-            throw new RuntimeException("No se puede eliminar. No existe el usuario con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede eliminar. No existe el usuario con ID: " + id);
         }
 
         usuarioRepository.deleteById(id);

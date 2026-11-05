@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
+import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.request.NotificacionRequest;
 import es.safareyes.schoolevents.dto.response.NotificacionResponse;
 import es.safareyes.schoolevents.mapper.NotificacionMapper;
@@ -47,6 +48,10 @@ public class NotificacionServiceImpl implements NotificacionService {
     @Transactional(readOnly = true)
     public List<NotificacionResponse> listarPorUsuario(Integer usuarioId) {
 
+        if(!usuarioRepository.existsById(usuarioId)) {
+            throw new RecursoNoEncontradoException("No se ha podido encontrar al usuario " + usuarioId);
+        }
+
         List<Notificacion> listaEntidades = notificacionRepository.findByUsuarioId(usuarioId);
         List<NotificacionResponse> listaRespuestas = new ArrayList<>();
 
@@ -66,7 +71,7 @@ public class NotificacionServiceImpl implements NotificacionService {
         Notificacion notificacion = notificacionRepository.findById(id).orElse(null);
 
         if (notificacion == null) {
-            throw new RuntimeException("No existe ninguna notificación con el ID: " + id);
+            throw new RecursoNoEncontradoException("No existe ninguna notificación con el ID: " + id);
         }
 
         NotificacionResponse dto = notificacionMapper.aResponse(notificacion);
@@ -83,7 +88,7 @@ public class NotificacionServiceImpl implements NotificacionService {
         if (request.idUsuario() != null) {
             Usuario usuario = usuarioRepository.findById(request.idUsuario()).orElse(null);
             if (usuario == null) {
-                throw new RuntimeException("No existe el usuario con el ID: " + request.idUsuario());
+                throw new RecursoNoEncontradoException("No existe el usuario con el ID: " + request.idUsuario());
             }
             nuevaNotificacion.setUsuario(usuario);
         }
@@ -110,7 +115,7 @@ public class NotificacionServiceImpl implements NotificacionService {
         Notificacion notificacionExistente = notificacionRepository.findById(id).orElse(null);
 
         if (notificacionExistente == null) {
-            throw new RuntimeException("No se puede actualizar. No existe la notificación con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede actualizar. No existe la notificación con ID: " + id);
         }
 
         notificacionExistente.setMensaje(request.mensaje());
@@ -129,7 +134,7 @@ public class NotificacionServiceImpl implements NotificacionService {
         if (request.idEvento() != null) {
             Evento evento = eventoRepository.findById(request.idEvento()).orElse(null);
             if (evento == null) {
-                throw new RuntimeException("No existe el evento con el ID: " + request.idEvento());
+                throw new RecursoNoEncontradoException("No existe el evento con el ID: " + request.idEvento());
             }
             notificacionExistente.setEvento(evento);
         } else {
@@ -150,7 +155,7 @@ public class NotificacionServiceImpl implements NotificacionService {
         boolean existe = notificacionRepository.existsById(id);
 
         if (!existe) {
-            throw new RuntimeException("No se puede eliminar. No existe la notificación con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede eliminar. No existe la notificación con ID: " + id);
         }
 
         notificacionRepository.deleteById(id);
@@ -164,7 +169,7 @@ public class NotificacionServiceImpl implements NotificacionService {
         Notificacion notificacion = notificacionRepository.findById(id).orElse(null);
 
         if (notificacion == null) {
-            throw new RuntimeException("No se puede marcar como leída. No existe la notificación con ID: " + id);
+            throw new RecursoNoEncontradoException("No se puede marcar como leída. No existe la notificación con ID: " + id);
         }
 
         notificacion.setLeida(true);

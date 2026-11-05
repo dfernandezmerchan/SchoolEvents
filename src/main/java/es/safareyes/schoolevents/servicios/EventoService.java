@@ -21,6 +21,5 @@ public interface EventoService {
     EventoResponse crear(EventoRequest request);
     EventoResponse actualizar(Integer id, EventoRequest request);
     EventoResponse cambiarEstado(Integer id, String nuevoEstado);
-    List<EventoResponse> obtenerAgendaUsuarioActual(String tipo);
     void eliminar(Integer id);
 }
