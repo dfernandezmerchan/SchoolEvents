@@ -15,7 +15,9 @@ public interface NotificacionMapper {
     @Mapping(target = "usuario", ignore = true)
     Notificacion aEntidad(NotificacionRequest request);
 
+    @Mapping(target = "idEvento", source = "evento.id")
     @Mapping(target = "tituloEvento", source = "evento.titulo")
+    @Mapping(target = "idUsuario", source = "usuario.id")
     @Mapping(target = "nombreUsuario", source = "usuario.nombre")
     NotificacionResponse aResponse(Notificacion entidad);
 }

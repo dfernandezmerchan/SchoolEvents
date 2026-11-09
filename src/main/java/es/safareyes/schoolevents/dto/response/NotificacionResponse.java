@@ -9,6 +9,9 @@ public record NotificacionResponse(
         tiponotificacion tipo,
 
         // Datos aplanados de las relaciones
-        String tituloEvento,  // Aplanado: coge evento.getTitulo()
-        String nombreUsuario  // Aplanado: coge usuario.getNombre()
+        Integer idEvento,
+        String tituloEvento,
+
+        Integer idUsuario,
+        String nombreUsuario
 ) {}
