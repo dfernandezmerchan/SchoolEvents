@@ -77,4 +77,14 @@ public interface IEventoRepository extends JpaRepository<Evento, Integer> {
     List<Object[]> AgendaUsuario(@Param("usuarioId") Integer usuarioId);
 
 
+
+
+
+    List<Evento> findByCategoria_IdOrderByFechainiAsc(Integer idcategoria);
+
+    List<Evento> findByEstadoOrderByFechainiAsc(Evento.estadoevento estado);
+
+    List<Evento> findAllByOrderByFechainiAsc();
+
+
 }

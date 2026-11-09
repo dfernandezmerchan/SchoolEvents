@@ -5,16 +5,20 @@ import es.safareyes.schoolevents.dto.request.NotificacionRequest;
 import es.safareyes.schoolevents.dto.response.NotificacionResponse;
 import es.safareyes.schoolevents.mapper.NotificacionMapper;
 import es.safareyes.schoolevents.modelos.Evento;
+import es.safareyes.schoolevents.modelos.Inscripcion;
 import es.safareyes.schoolevents.modelos.Notificacion;
 import es.safareyes.schoolevents.modelos.Usuario;
 import es.safareyes.schoolevents.repositorios.IEventoRepository;
+import es.safareyes.schoolevents.repositorios.IInscripcionRepository;
 import es.safareyes.schoolevents.repositorios.INotificacionRepository;
 import es.safareyes.schoolevents.repositorios.IUsuarioRepository;
 import es.safareyes.schoolevents.servicios.NotificacionService;
 import lombok.AllArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +29,7 @@ public class NotificacionServiceImpl implements NotificacionService {
     private INotificacionRepository notificacionRepository;
     private IUsuarioRepository usuarioRepository;
     private IEventoRepository eventoRepository;
+    private IInscripcionRepository inscripcionRepository;
     private NotificacionMapper notificacionMapper;
 
     // 1. LISTAR TODAS LAS NOTIFICACIONES
@@ -175,4 +180,83 @@ public class NotificacionServiceImpl implements NotificacionService {
         notificacion.setLeida(true);
         notificacionRepository.save(notificacion);
     }
+
+    //crear notificacion 24 o 1 hora antes
+
+    @Override
+    @Scheduled(fixedRate = 60000)
+    @Transactional
+    public void crearNotificacionesRecordatorio() {
+
+        LocalDateTime ahora = LocalDateTime.now();
+
+        // Eventos que empiezan aproximadamente dentro de 24 horas
+        crearRecordatorios(
+                ahora.plusHours(24).minusMinutes(1),
+                ahora.plusHours(24).plusMinutes(1),
+                Notificacion.tiponotificacion.RECORDATORIO_24H
+        );
+
+        // Eventos que empiezan aproximadamente dentro de 1 hora
+        crearRecordatorios(
+                ahora.plusHours(1).minusMinutes(1),
+                ahora.plusHours(1).plusMinutes(1),
+                Notificacion.tiponotificacion.RECORDATORIO_1H
+        );
+    }
+
+    private void crearRecordatorios(
+            LocalDateTime desde,
+            LocalDateTime hasta,
+            Notificacion.tiponotificacion tipo) {
+
+        List<Evento> eventos =
+                eventoRepository.findByFechainiBetweenOrderByFechainiAsc(
+                        desde, hasta);
+
+        for (Evento evento : eventos) {
+
+            List<Inscripcion> inscripciones =
+                    inscripcionRepository.findByEventoId(evento.getId());
+
+            for (Inscripcion inscripcion : inscripciones) {
+
+                if (inscripcion.getEstado()
+                        != Inscripcion.estadoinscripcion.CONFIRMADA) {
+                    continue;
+                }
+
+                Integer usuarioId = inscripcion.getUsuario().getId();
+
+                boolean yaExiste =
+                        notificacionRepository
+                                .existsByEventoIdAndUsuarioIdAndTipo(
+                                        evento.getId(),
+                                        usuarioId,
+                                        tipo);
+
+                if (!yaExiste) {
+
+                    Notificacion notificacion = new Notificacion();
+
+                    notificacion.setMensaje(
+                            "El evento " + evento.getTitulo()
+                                    + " comienza en "
+                                    + (tipo == Notificacion.tiponotificacion.RECORDATORIO_24H
+                                    ? "24 horas"
+                                    : "1 hora")
+                    );
+
+                    notificacion.setLeida(false);
+                    notificacion.setTipo(tipo);
+                    notificacion.setEvento(evento);
+                    notificacion.setUsuario(inscripcion.getUsuario());
+
+                    notificacionRepository.save(notificacion);
+                }
+            }
+        }
+    }
+
+
 }

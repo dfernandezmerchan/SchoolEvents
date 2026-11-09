@@ -11,4 +11,10 @@ import java.util.List;
 public interface INotificacionRepository extends JpaRepository<Notificacion, Integer> {
 
     List<Notificacion> findByUsuarioId(Integer usuarioId);
+
+    boolean existsByEventoIdAndUsuarioIdAndTipo(
+            Integer eventoId,
+            Integer usuarioId,
+            Notificacion.tiponotificacion tipo
+    );
 }

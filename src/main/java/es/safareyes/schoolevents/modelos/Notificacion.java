@@ -25,7 +25,7 @@ public class Notificacion {
     @Column(name = "leida", nullable = false)
     private Boolean leida = false;
 
-    public enum tiponotificacion{CAMBIO_HORARIO, NUEVO_EVENTO, CANCELACION};
+    public enum tiponotificacion{CAMBIO_HORARIO, NUEVO_EVENTO, CANCELACION, RECORDATORIO_24H, RECORDATORIO_1H};
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "tipo")
     private Notificacion.tiponotificacion tipo;

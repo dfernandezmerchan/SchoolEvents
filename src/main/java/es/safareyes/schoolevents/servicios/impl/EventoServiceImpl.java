@@ -43,16 +43,37 @@ public class EventoServiceImpl implements EventoService {
         return listaRespuestas;
     }
 
-    // 2. LISTAR EVENTOS CON FILTRO D CATEGORIA Y ESTADO
+    // 2. LISTAR EVENTOS CON FILTRO D CATEGORIA Y/O ESTADO
     @Override
     @Transactional(readOnly = true)
-    public List<EventoResponse> listarConFiltros(Integer idcategoria, Evento.estadoevento estado) {
+    public List<EventoResponse> listarConFiltros(
+            Integer idcategoria,
+            Evento.estadoevento estado) {
 
-        if(!categoriaRepository.existsById(idcategoria)) {
-            throw new RecursoNoEncontradoException("no se ha encontrado la categoria especificada " + idcategoria);
+        List<Evento> listaEntidades;
+
+        if (idcategoria != null && estado != null) {
+
+            listaEntidades = eventoRepository
+                    .findByCategoria_IdAndEstadoOrderByFechainiAsc(
+                            idcategoria, estado);
+
+        } else if (idcategoria != null) {
+
+            listaEntidades = eventoRepository
+                    .findByCategoria_IdOrderByFechainiAsc(idcategoria);
+
+        } else if (estado != null) {
+
+            listaEntidades = eventoRepository
+                    .findByEstadoOrderByFechainiAsc(estado);
+
+        } else {
+
+            listaEntidades = eventoRepository
+                    .findAllByOrderByFechainiAsc();
         }
 
-        List<Evento> listaEntidades = eventoRepository.findByCategoria_IdAndEstadoOrderByFechainiAsc(idcategoria, estado);
         List<EventoResponse> listaRespuestas = new ArrayList<>();
 
         for (Evento evento : listaEntidades) {

@@ -13,4 +13,5 @@ public interface NotificacionService {
     NotificacionResponse actualizar(Integer id, NotificacionRequest request);
     void eliminar(Integer id);
     void marcarComoLeida(Integer id); // Nuevo método
+    void crearNotificacionesRecordatorio();
 }
