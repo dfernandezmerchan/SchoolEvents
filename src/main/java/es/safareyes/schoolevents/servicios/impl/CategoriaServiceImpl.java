@@ -30,7 +30,6 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     // 1. OBTENER TODAS LAS CATEGORÍAS
     @Override
-    @Transactional(readOnly = true)
     public List<CategoriaResponse> listarTodas() {
 
         // PASO A: Le pedimos a PostgreSQL todas las filas de la tabla categoria
@@ -55,7 +54,6 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     // 2. BUSCAR UNA CATEGORÍA POR SU ID
     @Override
-    @Transactional(readOnly = true)
     public CategoriaResponse buscarPorId(Integer id) {
 
         // PASO A: Buscamos en la base de datos (findById nos devuelve un Optional por si no existe)
@@ -75,7 +73,6 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     // 3. CREAR UNA NUEVA CATEGORÍA
     @Override
-    @Transactional
     public CategoriaResponse crear(CategoriaRequest request) {
 
         // PASO A: Convertimos los datos que vienen de la petición (DTO Request) a una Entidad Categoria
@@ -103,7 +100,6 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     //actualizar categoria
     @Override
-    @Transactional
     public CategoriaResponse actualizar(Integer id, CategoriaRequest request) {
 
         Categoria categoriaExiste = categoriaRepository.findById(id).orElse(null);
