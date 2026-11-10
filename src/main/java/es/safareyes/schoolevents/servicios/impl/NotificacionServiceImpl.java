@@ -181,7 +181,6 @@ public class NotificacionServiceImpl implements NotificacionService {
         notificacionRepository.save(notificacion);
     }
 
-    //crear notificacion 24 o 1 hora antes
 
     @Override
     @Scheduled(fixedRate = 60000)
@@ -190,63 +189,39 @@ public class NotificacionServiceImpl implements NotificacionService {
 
         LocalDateTime ahora = LocalDateTime.now();
 
-        // Eventos que empiezan aproximadamente dentro de 24 horas
-        crearRecordatorios(
-                ahora.plusHours(24).minusMinutes(1),
-                ahora.plusHours(24).plusMinutes(1),
-                Notificacion.tiponotificacion.RECORDATORIO_24H
-        );
-
-        // Eventos que empiezan aproximadamente dentro de 1 hora
-        crearRecordatorios(
-                ahora.plusHours(1).minusMinutes(1),
-                ahora.plusHours(1).plusMinutes(1),
-                Notificacion.tiponotificacion.RECORDATORIO_1H
-        );
+        crearRecordatorios(ahora, 24, Notificacion.tiponotificacion.RECORDATORIO_24H);
+        crearRecordatorios(ahora, 1, Notificacion.tiponotificacion.RECORDATORIO_1H);
     }
 
     private void crearRecordatorios(
-            LocalDateTime desde,
-            LocalDateTime hasta,
+            LocalDateTime ahora,
+            int horas,
             Notificacion.tiponotificacion tipo) {
 
+        LocalDateTime desde = ahora.plusHours(horas).minusMinutes(1);
+        LocalDateTime hasta = ahora.plusHours(horas).plusMinutes(1);
+
         List<Evento> eventos =
-                eventoRepository.findByFechainiBetweenOrderByFechainiAsc(
-                        desde, hasta);
+                eventoRepository.findByFechainiBetweenOrderByFechainiAsc(desde, hasta);
 
         for (Evento evento : eventos) {
-
             List<Inscripcion> inscripciones =
                     inscripcionRepository.findByEventoId(evento.getId());
 
             for (Inscripcion inscripcion : inscripciones) {
 
-                if (inscripcion.getEstado()
-                        != Inscripcion.estadoinscripcion.CONFIRMADA) {
+                if (inscripcion.getEstado() != Inscripcion.estadoinscripcion.CONFIRMADA) {
                     continue;
                 }
 
                 Integer usuarioId = inscripcion.getUsuario().getId();
 
-                boolean yaExiste =
-                        notificacionRepository
-                                .existsByEventoIdAndUsuarioIdAndTipo(
-                                        evento.getId(),
-                                        usuarioId,
-                                        tipo);
-
-                if (!yaExiste) {
+                if (!notificacionRepository.existsByEventoIdAndUsuarioIdAndTipo(
+                        evento.getId(), usuarioId, tipo)) {
 
                     Notificacion notificacion = new Notificacion();
-
-                    notificacion.setMensaje(
-                            "El evento " + evento.getTitulo()
-                                    + " comienza en "
-                                    + (tipo == Notificacion.tiponotificacion.RECORDATORIO_24H
-                                    ? "24 horas"
-                                    : "1 hora")
-                    );
-
+                    notificacion.setMensaje("El evento " + evento.getTitulo()
+                            + " comienza en " + horas + " horas");
                     notificacion.setLeida(false);
                     notificacion.setTipo(tipo);
                     notificacion.setEvento(evento);
@@ -257,6 +232,7 @@ public class NotificacionServiceImpl implements NotificacionService {
             }
         }
     }
+
 
 
 }
