@@ -137,13 +137,10 @@ public class InscripcionServiceImpl implements InscripcionService {
     @Transactional(readOnly = true)
     public List<InscripcionResponse> listarPorEvento(Integer idEvento) {
 
-        // PASO A: Traer de PostgreSQL la lista de inscripciones para este evento
         List<Inscripcion> listaEntidades = inscripcionRepository.findByEventoId(idEvento);
 
-        // PASO B: Lista vacía para guardar los DTOs
         List<InscripcionResponse> listaRespuestas = new ArrayList<>();
 
-        // PASO C: Bucle for tradicional para mapear cada inscripción
         for (Inscripcion inscripcion : listaEntidades) {
             InscripcionResponse dto = inscripcionMapper.aResponse(inscripcion);
             listaRespuestas.add(dto);
@@ -161,13 +158,10 @@ public class InscripcionServiceImpl implements InscripcionService {
             throw new RecursoNoEncontradoException("No se ha encontrad ningún usuario con id " + idUsuario);
         }
 
-        // PASO A: Traer de PostgreSQL la lista de inscripciones de este usuario
         List<Inscripcion> listaEntidades = inscripcionRepository.findByUsuarioId(idUsuario);
 
-        // PASO B: Lista vacía para guardar los DTOs
         List<InscripcionResponse> listaRespuestas = new ArrayList<>();
 
-        // PASO C: Bucle for tradicional para mapear cada inscripción
         for (Inscripcion inscripcion : listaEntidades) {
             InscripcionResponse dto = inscripcionMapper.aResponse(inscripcion);
             listaRespuestas.add(dto);

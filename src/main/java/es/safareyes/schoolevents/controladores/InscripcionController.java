@@ -2,6 +2,8 @@ package es.safareyes.schoolevents.controladores;
 
 import es.safareyes.schoolevents.dto.request.InscripcionRequest;
 import es.safareyes.schoolevents.dto.response.InscripcionResponse;
+import es.safareyes.schoolevents.dto.response.ParticipacionCursoResponse;
+import es.safareyes.schoolevents.dto.response.ParticipacionInformeResponse;
 import es.safareyes.schoolevents.servicios.InscripcionService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -76,13 +79,48 @@ public class InscripcionController {
 
     //informe de un evento
     @GetMapping("/informe")
-    public ResponseEntity<List<Object[]>> getInformeParticipacion(
+    public ResponseEntity<List<ParticipacionInformeResponse>> getInformeParticipacion(
             @RequestParam LocalDateTime desde,
             @RequestParam LocalDateTime hasta) {
 
         List<Object[]> informe =
                 inscripcionService.getInformeParticipacion(desde, hasta);
 
-        return ResponseEntity.ok(informe);
+        List<ParticipacionInformeResponse> respuesta = new ArrayList<>();
+
+        for (Object[] fila : informe) {
+
+            String categoria = (String) fila[0];
+            String curso = (String) fila[1];
+            Long participantes = ((Number) fila[2]).longValue();
+
+            ParticipacionCursoResponse cursoResponse =
+                    new ParticipacionCursoResponse(curso, participantes);
+
+            ParticipacionInformeResponse categoriaExistente = null;
+
+            for (ParticipacionInformeResponse categoriaResponse : respuesta) {
+                if (categoriaResponse.categoria().equals(categoria)) {
+                    categoriaExistente = categoriaResponse;
+                    break;
+                }
+            }
+
+            if (categoriaExistente == null) {
+
+                List<ParticipacionCursoResponse> cursos = new ArrayList<>();
+                cursos.add(cursoResponse);
+
+                respuesta.add(
+                        new ParticipacionInformeResponse(categoria, cursos)
+                );
+
+            } else {
+
+                categoriaExistente.cursos().add(cursoResponse);
+            }
+        }
+
+        return ResponseEntity.ok(respuesta);
     }
 }
