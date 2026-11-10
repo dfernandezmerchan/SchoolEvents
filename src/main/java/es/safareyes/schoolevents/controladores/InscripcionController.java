@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -74,12 +75,13 @@ public class InscripcionController {
     }
 
     //informe de un evento
-    @GetMapping("/informe/{eventoId}")
+    @GetMapping("/informe")
     public ResponseEntity<List<Object[]>> getInformeParticipacion(
-            @PathVariable Integer eventoId) {
+            @RequestParam LocalDateTime desde,
+            @RequestParam LocalDateTime hasta) {
 
         List<Object[]> informe =
-                inscripcionService.getInformeParticipacion(eventoId);
+                inscripcionService.getInformeParticipacion(desde, hasta);
 
         return ResponseEntity.ok(informe);
     }

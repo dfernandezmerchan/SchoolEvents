@@ -37,14 +37,15 @@ public interface IInscripcionRepository extends JpaRepository<Inscripcion, Integ
     INNER JOIN categoria cat ON e.id_categoria = cat.id
     INNER JOIN usuario u ON i.usuario_id = u.id
     INNER JOIN curso cur ON u.curso_id = cur.id
-    WHERE e.id = :eventoId
+    WHERE e.fechaini BETWEEN :desde AND :hasta
       AND e.estado = 2
       AND i.estado = 0
     GROUP BY cat.nombre, cur.nombre
     ORDER BY cat.nombre, cur.nombre
     """, nativeQuery = true)
     List<Object[]> getInformeParticipacion(
-            @Param("eventoId") Integer eventoId);
+            @Param("desde") LocalDateTime desde,
+            @Param("hasta") LocalDateTime hasta);
 
 
 }

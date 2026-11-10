@@ -12,5 +12,9 @@ public interface InscripcionService {
     List<InscripcionResponse> listarPorEvento(Integer eventoId);
     List<InscripcionResponse> agendaUsuario(Integer usuarioId);
     InscripcionResponse buscarPorId(Integer id);
-    List<Object[]> getInformeParticipacion(Integer eventoId);
+    List<Object[]> getInformeParticipacion(
+            LocalDateTime desde,
+            LocalDateTime hasta
+    );
+
 }
