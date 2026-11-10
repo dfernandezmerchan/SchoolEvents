@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -181,10 +182,22 @@ public class EventoServiceImpl implements EventoService {
         Evento eventoExistente = eventoRepository.findById(id).orElse(null);
 
         if (eventoExistente == null) {
-            throw new RecursoNoEncontradoException("No se puede actualizar. No existe el evento con ID: " + id);
+            throw new RecursoNoEncontradoException(
+                    "No se puede actualizar. No existe el evento con ID: " + id
+            );
         }
 
-        // Se mapean los nuevos valores sobre la entidad recuperada
+        // Guardamos los valores anteriores
+        String tituloAnterior = eventoExistente.getTitulo();
+        String descripcionAnterior = eventoExistente.getDescripcion();
+        LocalDateTime fechainiAnterior = eventoExistente.getFechaini();
+        LocalDateTime fechafinAnterior = eventoExistente.getFechafin();
+        Evento.estadoevento estadoAnterior = eventoExistente.getEstado();
+        Integer categoriaAnterior = eventoExistente.getCategoria() != null
+                ? eventoExistente.getCategoria().getId()
+                : null;
+
+        // Actualizamos los valores
         eventoExistente.setTitulo(request.titulo());
         eventoExistente.setDescripcion(request.descripcion());
         eventoExistente.setFechaini(request.fechaini());
@@ -192,17 +205,78 @@ public class EventoServiceImpl implements EventoService {
         eventoExistente.setEstado(request.estado());
 
         if (request.idCategoria() != null) {
-            Categoria categoriaEncontrada = categoriaRepository.findById(request.idCategoria()).orElse(null);
+
+            Categoria categoriaEncontrada =
+                    categoriaRepository.findById(request.idCategoria()).orElse(null);
+
             if (categoriaEncontrada == null) {
-                throw new RecursoNoEncontradoException("No existe la categoría con el ID: " + request.idCategoria());
+                throw new RecursoNoEncontradoException(
+                        "No existe la categoría con el ID: " + request.idCategoria()
+                );
             }
+
             eventoExistente.setCategoria(categoriaEncontrada);
         }
 
         Evento guardado = eventoRepository.save(eventoExistente);
 
-        EventoResponse dto = eventoMapper.aResponse(guardado);
-        return dto;
+        // Registrar automáticamente los cambios
+
+        if (!Objects.equals(tituloAnterior, request.titulo())) {
+            cambioEventoService.registrarCambio(
+                    id,
+                    "titulo",
+                    tituloAnterior,
+                    request.titulo()
+            );
+        }
+
+        if (!Objects.equals(descripcionAnterior, request.descripcion())) {
+            cambioEventoService.registrarCambio(
+                    id,
+                    "descripcion",
+                    descripcionAnterior,
+                    request.descripcion()
+            );
+        }
+
+        if (!Objects.equals(fechainiAnterior, request.fechaini())) {
+            cambioEventoService.registrarCambio(
+                    id,
+                    "fechaini",
+                    String.valueOf(fechainiAnterior),
+                    String.valueOf(request.fechaini())
+            );
+        }
+
+        if (!Objects.equals(fechafinAnterior, request.fechafin())) {
+            cambioEventoService.registrarCambio(
+                    id,
+                    "fechafin",
+                    String.valueOf(fechafinAnterior),
+                    String.valueOf(request.fechafin())
+            );
+        }
+
+        if (!Objects.equals(estadoAnterior, request.estado())) {
+            cambioEventoService.registrarCambio(
+                    id,
+                    "estado",
+                    estadoAnterior != null ? estadoAnterior.name() : null,
+                    request.estado() != null ? request.estado().name() : null
+            );
+        }
+
+        if (!Objects.equals(categoriaAnterior, request.idCategoria())) {
+            cambioEventoService.registrarCambio(
+                    id,
+                    "categoria",
+                    String.valueOf(categoriaAnterior),
+                    String.valueOf(request.idCategoria())
+            );
+        }
+
+        return eventoMapper.aResponse(guardado);
     }
 
     // 9. CAMBIAR ESTADO DE UN EVENTO (BORRADOR, PUBLICADO, CANCELADO)
