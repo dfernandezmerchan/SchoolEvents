@@ -136,4 +136,28 @@ public class InscripcionServiceImpl implements InscripcionService {
         InscripcionResponse dto = inscripcionMapper.aResponse(inscripcion);
         return dto;
     }
+
+    //informe de participación de un evento concreto
+    @Override
+    @Transactional(readOnly = true)
+    public List<Object[]> getInformeParticipacion(Integer eventoId) {
+
+        Evento evento = eventoRepository.findById(eventoId).orElse(null);
+
+        if (evento == null) {
+            throw new RecursoNoEncontradoException(
+                    "No existe el evento con ID: " + eventoId
+            );
+        }
+
+        if (evento.getEstado() != Evento.estadoevento.FINALIZADO){
+            throw new RecursoNoEncontradoException(
+                    "El evento no ha finalizado todavía, no se pudo realizar el informe"
+            );
+
+        }
+
+        return inscripcionRepository.getInformeParticipacion(eventoId);
+    }
+
 }

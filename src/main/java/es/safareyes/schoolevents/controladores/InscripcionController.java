@@ -72,4 +72,15 @@ public class InscripcionController {
 
         return ResponseEntity.ok(inscripcion);
     }
+
+    //informe de un evento
+    @GetMapping("/informe/{eventoId}")
+    public ResponseEntity<List<Object[]>> getInformeParticipacion(
+            @PathVariable Integer eventoId) {
+
+        List<Object[]> informe =
+                inscripcionService.getInformeParticipacion(eventoId);
+
+        return ResponseEntity.ok(informe);
+    }
 }

@@ -39,30 +39,6 @@ public class TestRepositorioInscripcion {
         }
     }
 
-    //get 16 REVISAR
-    @Test
-    void consultarInformeParticipacion() {
-        LocalDateTime desde = LocalDateTime.of(2026, 1, 1, 0, 0);
-        LocalDateTime hasta = LocalDateTime.of(2026, 12, 31, 23, 59);
 
-        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
-
-        List<Object[]> informe = inscripcionesRepo.getInformeParticipacion(desde, hasta);
-
-        if (informe.isEmpty()) {
-            System.out.println("No hay participaciones registradas en ese rango de fechas.");
-            return;
-        }
-
-        System.out.println("=== INFORME DE PARTICIPACIÓN ===");
-        System.out.println("Desde: " + desde.format(formato) + " Hasta: " + hasta.format(formato));
-        for (Object[] fila : informe) {
-            System.out.println("Categoría   : " + fila[0]);
-            System.out.println("Curso       : " + fila[1]);
-            System.out.println("Inscritos   : " + fila[2]);
-            System.out.println("-------------------------");
-        }
-    }
 
 }
