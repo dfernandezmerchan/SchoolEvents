@@ -44,7 +44,6 @@ public class Evento {
     @Column(name = "fechalimite")
     private LocalDateTime fechalimite;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_lugar")
     private Lugar lugar;

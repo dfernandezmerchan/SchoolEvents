@@ -77,7 +77,19 @@ public interface IEventoRepository extends JpaRepository<Evento, Integer> {
     List<Object[]> AgendaUsuario(@Param("usuarioId") Integer usuarioId);
 
 
-
+    //busca eventos solapados
+    @Query("""
+    SELECT e FROM Evento e
+    WHERE e.lugar.id = :lugarId
+    AND e.estado <> es.safareyes.schoolevents.modelos.Evento.estadoevento.CANCELADO
+    AND e.fechaini < :fechaFin
+    AND e.fechafin > :fechaInicio
+""")
+    List<Evento> buscarEventosSolapados(
+            @Param("lugarId") Integer lugarId,
+            @Param("fechaInicio") LocalDateTime fechaInicio,
+            @Param("fechaFin") LocalDateTime fechaFin
+    );
 
 
     List<Evento> findByCategoria_IdOrderByFechainiAsc(Integer idcategoria);

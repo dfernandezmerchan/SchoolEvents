@@ -1,6 +1,7 @@
 package es.safareyes.schoolevents.servicios.impl;
 
 import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
+import es.safareyes.schoolevents.Errores.ReglaNegocio1Exception;
 import es.safareyes.schoolevents.Errores.ReglaNegocioException;
 import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.EventoResponse;
@@ -169,15 +170,32 @@ public class EventoServiceImpl implements EventoService {
             nuevoEvento.setCategoria(categoriaEncontrada);
         }
 
+        //fechafin debe ser posterior a la fecha de inicio
         if (!request.fechafin().isAfter(request.fechaini())) {
-            throw new ReglaNegocioException(
-              "la fecha de fin no puede ser antes que la fecha de inicio"
+
+            throw new ReglaNegocio1Exception(
+                    "la fecha de fin no puede ser antes que la fecha de inicio"
             );
         }
 
+        //fechalimite debe ser igual o anterior al inicio del evento
         if (request.fechalimite() != null && request.fechalimite().isAfter(request.fechaini())) {
-            throw new ReglaNegocioException(
+            throw new ReglaNegocio1Exception(
                     "La fecha límite de inscripción debe ser anterior o igual a la fecha de inicio"
+            );
+        }
+
+        //crea una lista con eventos solapados
+        List<Evento> eventosSolapados = eventoRepository.buscarEventosSolapados(
+                request.idLugar(),
+                request.fechaini(),
+                request.fechafin()
+        );
+
+        //si la lista NO esta vacia, osea que este evento creado se solapa con otro, lanza excepcion
+        if (!eventosSolapados.isEmpty()) {
+            throw new ReglaNegocio1Exception(
+                    "Ya existe otro evento en ese lugar que se solapa con las fechas indicadas"
             );
         }
 
