@@ -175,6 +175,12 @@ public class EventoServiceImpl implements EventoService {
             );
         }
 
+        if (request.fechalimite() != null && request.fechalimite().isAfter(request.fechaini())) {
+            throw new ReglaNegocioException(
+                    "La fecha límite de inscripción debe ser anterior o igual a la fecha de inicio"
+            );
+        }
+
         Evento guardado = eventoRepository.save(nuevoEvento);
 
         EventoResponse dto = eventoMapper.aResponse(guardado);
@@ -197,6 +203,12 @@ public class EventoServiceImpl implements EventoService {
         if (!request.fechafin().isAfter(request.fechaini())) {
             throw new ReglaNegocioException(
                     "La fecha de fin debe ser posterior a la fecha de inicio"
+            );
+        }
+
+        if (request.fechalimite() != null && request.fechalimite().isAfter(request.fechaini())) {
+            throw new ReglaNegocioException(
+                    "La fecha límite de inscripción debe ser anterior o igual a la fecha de inicio"
             );
         }
 
