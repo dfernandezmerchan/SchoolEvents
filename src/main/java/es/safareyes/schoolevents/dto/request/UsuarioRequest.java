@@ -3,7 +3,7 @@ package es.safareyes.schoolevents.dto.request;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
-public record UsuarioRequest(
+public record   UsuarioRequest(
         @NotBlank(message = "El nombre es obligatorio")
         @Size(max = 100, message = "El nombre no puede superar los 100 caracteres")
         String nombre,

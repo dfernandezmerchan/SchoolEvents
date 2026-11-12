@@ -1,6 +1,7 @@
 package es.safareyes.schoolevents.servicios.impl;
 
 import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
+import es.safareyes.schoolevents.Errores.ReglaNegocioException;
 import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.EventoResponse;
 import es.safareyes.schoolevents.mapper.EventoMapper;
@@ -168,6 +169,12 @@ public class EventoServiceImpl implements EventoService {
             nuevoEvento.setCategoria(categoriaEncontrada);
         }
 
+        if (!request.fechafin().isAfter(request.fechaini())) {
+            throw new ReglaNegocioException(
+              "la fecha de fin no puede ser antes que la fecha de inicio"
+            );
+        }
+
         Evento guardado = eventoRepository.save(nuevoEvento);
 
         EventoResponse dto = eventoMapper.aResponse(guardado);
@@ -184,6 +191,12 @@ public class EventoServiceImpl implements EventoService {
         if (eventoExistente == null) {
             throw new RecursoNoEncontradoException(
                     "No se puede actualizar. No existe el evento con ID: " + id
+            );
+        }
+
+        if (!request.fechafin().isAfter(request.fechaini())) {
+            throw new ReglaNegocioException(
+                    "La fecha de fin debe ser posterior a la fecha de inicio"
             );
         }
 
@@ -217,6 +230,8 @@ public class EventoServiceImpl implements EventoService {
 
             eventoExistente.setCategoria(categoriaEncontrada);
         }
+
+
 
         Evento guardado = eventoRepository.save(eventoExistente);
 
