@@ -1,6 +1,7 @@
 package es.safareyes.schoolevents.servicios.impl;
 
 import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
+import es.safareyes.schoolevents.Errores.ReglaNegocio3Exception;
 import es.safareyes.schoolevents.Errores.ReglaNegocioException;
 import es.safareyes.schoolevents.dto.request.InscripcionRequest;
 import es.safareyes.schoolevents.dto.response.InscripcionResponse;
@@ -50,6 +51,19 @@ public class InscripcionServiceImpl implements InscripcionService {
             throw new RecursoNoEncontradoException(
                     "No existe ningún evento con el ID: " + request.idEvento()
             );
+        }
+
+        // Comprobar si el usuario puede inscribirse en el evento
+        if (!evento.getCursos().isEmpty()) {
+
+            boolean perteneceAlCurso = evento.getCursos().stream()
+                    .anyMatch(curso -> curso.getId().equals(usuario.getCurso().getId()));
+
+            if (!perteneceAlCurso) {
+                throw new ReglaNegocio3Exception(
+                        "No puedes inscribirte en este evento porque no perteneces a ninguno de los cursos asignados"
+                );
+            }
         }
 
         // PASO C: Convertir el DTO Request a la entidad Inscripcion
