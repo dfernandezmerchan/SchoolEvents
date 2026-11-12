@@ -49,5 +49,16 @@ public class ErrorGlobalController {
         return problema;
     }
 
+    //errores reglas de negocio
+
+    @ExceptionHandler(ReglaNegocio1Exception.class)
+    public ProblemDetail reglaNegocio1(ReglaNegocio1Exception e) {
+
+        return construir(
+                HttpStatus.CONFLICT,
+                "Regla de negocio 01 incumplida",
+                e.getMessage()
+        );
+    }
 
 }
