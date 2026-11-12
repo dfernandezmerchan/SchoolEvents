@@ -61,4 +61,14 @@ public class ErrorGlobalController {
         );
     }
 
+    @ExceptionHandler(ReglaNegocio1Exception.class)
+    public ProblemDetail reglaNegocio3(ReglaNegocio3Exception e) {
+
+        return construir(
+                HttpStatus.FORBIDDEN,
+                "Regla de negocio 03 incumplida",
+                e.getMessage()
+        );
+    }
+
 }
