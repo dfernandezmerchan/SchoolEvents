@@ -57,24 +57,20 @@ public class EventoServiceImpl implements EventoService {
 
         if (idcategoria != null && estado != null) {
 
-            listaEntidades = eventoRepository
-                    .findByCategoria_IdAndEstadoOrderByFechainiAsc(
+            listaEntidades = eventoRepository.findByCategoria_IdAndEstadoOrderByFechainiAsc(
                             idcategoria, estado);
 
         } else if (idcategoria != null) {
 
-            listaEntidades = eventoRepository
-                    .findByCategoria_IdOrderByFechainiAsc(idcategoria);
+            listaEntidades = eventoRepository.findByCategoria_IdOrderByFechainiAsc(idcategoria);
 
         } else if (estado != null) {
 
-            listaEntidades = eventoRepository
-                    .findByEstadoOrderByFechainiAsc(estado);
+            listaEntidades = eventoRepository.findByEstadoOrderByFechainiAsc(estado);
 
         } else {
 
-            listaEntidades = eventoRepository
-                    .findAllByOrderByFechainiAsc();
+            listaEntidades = eventoRepository.findAllByOrderByFechainiAsc();
         }
 
         List<EventoResponse> listaRespuestas = new ArrayList<>();

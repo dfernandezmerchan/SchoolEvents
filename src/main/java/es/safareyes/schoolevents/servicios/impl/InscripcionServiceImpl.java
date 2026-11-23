@@ -1,8 +1,6 @@
 package es.safareyes.schoolevents.servicios.impl;
 
-import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
-import es.safareyes.schoolevents.Errores.ReglaNegocio3Exception;
-import es.safareyes.schoolevents.Errores.ReglaNegocioException;
+import es.safareyes.schoolevents.Errores.*;
 import es.safareyes.schoolevents.dto.request.InscripcionRequest;
 import es.safareyes.schoolevents.dto.response.InscripcionResponse;
 import es.safareyes.schoolevents.mapper.InscripcionMapper;
@@ -53,7 +51,7 @@ public class InscripcionServiceImpl implements InscripcionService {
             );
         }
 
-        // Comprobar si el usuario puede inscribirse en el evento
+        // Comprobar si el usuario puede inscribirse en el evento comprobando el curso
         if (!evento.getCursos().isEmpty()) {
 
             boolean perteneceAlCurso = evento.getCursos().stream()
@@ -64,6 +62,35 @@ public class InscripcionServiceImpl implements InscripcionService {
                         "No puedes inscribirte en este evento porque no perteneces a ninguno de los cursos asignados"
                 );
             }
+        }
+
+        // Comprobar estado del evento
+        if (evento.getEstado() == Evento.estadoevento.CANCELADO ||
+                evento.getEstado() == Evento.estadoevento.FINALIZADO) {
+
+            throw new ReglaNegocio4Exception(
+                    "No se puede inscribir en un evento cancelado o finalizado"
+            );
+        }
+
+        // Comprobar fecha límite
+        if (evento.getFechalimite() != null &&
+                LocalDateTime.now().isAfter(evento.getFechalimite())) {
+
+            throw new ReglaNegocio4Exception(
+                    "La fecha límite de inscripción ya ha pasado"
+            );
+        }
+
+        // Comprobar si el usuario ya está inscrito en el evento
+        Optional<Inscripcion> inscripcionExistente =
+                inscripcionRepository.findByEventoIdAndUsuarioId(
+                        evento.getId(),
+                        usuario.getId()
+                );
+
+        if (inscripcionExistente.isPresent()) {
+            return inscripcionMapper.aResponse(inscripcionExistente.get());
         }
 
         // PASO C: Convertir el DTO Request a la entidad Inscripcion
