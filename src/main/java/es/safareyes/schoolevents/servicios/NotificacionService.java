@@ -2,6 +2,7 @@ package es.safareyes.schoolevents.servicios;
 
 import es.safareyes.schoolevents.dto.request.NotificacionRequest;
 import es.safareyes.schoolevents.dto.response.NotificacionResponse;
+import es.safareyes.schoolevents.modelos.Notificacion;
 
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface NotificacionService {
     void eliminar(Integer id);
     void marcarComoLeida(Integer id); // Nuevo método
     void crearNotificacionesRecordatorio();
+
+    void notificarInscritos(Integer eventoId, String mensaje, Notificacion.tiponotificacion tipo);
 }

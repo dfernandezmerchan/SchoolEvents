@@ -233,6 +233,31 @@ public class NotificacionServiceImpl implements NotificacionService {
         }
     }
 
+    //este bloque se encarga de crear la notificacion
+    @Override
+    @Transactional
+    public void notificarInscritos(Integer eventoId, String mensaje, Notificacion.tiponotificacion tipo) {
+
+        List<Inscripcion> inscripciones = inscripcionRepository.findByEventoId(eventoId);
+
+        for (Inscripcion inscripcion : inscripciones) {
+            if(inscripcion.getEstado() != Inscripcion.estadoinscripcion.CONFIRMADA){
+                continue;
+            }
+
+            Notificacion notificacion = new Notificacion();
+            notificacion.setMensaje(mensaje);
+            notificacion.setLeida(false);
+            notificacion.setTipo(tipo);
+            notificacion.setEvento(inscripcion.getEvento());
+            notificacion.setUsuario(inscripcion.getUsuario());
+
+
+            notificacionRepository.save(notificacion);
+        }
+
+    }
+
 
 
 }
