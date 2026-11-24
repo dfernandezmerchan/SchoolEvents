@@ -9,11 +9,13 @@ import es.safareyes.schoolevents.mapper.EventoMapper;
 import es.safareyes.schoolevents.modelos.Categoria;
 import es.safareyes.schoolevents.modelos.Evento;
 import es.safareyes.schoolevents.modelos.Lugar;
+import es.safareyes.schoolevents.modelos.Notificacion;
 import es.safareyes.schoolevents.repositorios.ICategoriaRepository;
 import es.safareyes.schoolevents.repositorios.IEventoRepository;
 import es.safareyes.schoolevents.repositorios.ILugarRepository;
 import es.safareyes.schoolevents.servicios.CambioEventoService;
 import es.safareyes.schoolevents.servicios.EventoService;
+import es.safareyes.schoolevents.servicios.NotificacionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,11 +29,15 @@ import java.util.Objects;
 @AllArgsConstructor
 public class EventoServiceImpl implements EventoService {
 
+    private EventoMapper eventoMapper;
+
     private IEventoRepository eventoRepository;
     private ICategoriaRepository categoriaRepository;
-    private EventoMapper eventoMapper;
-    private CambioEventoService cambioEventoService;
     private ILugarRepository lugarRepository;
+
+
+    private CambioEventoService cambioEventoService;
+    private NotificacionService notificacionService;
 
     // 1. LISTAR TODAS LAS PUBLICACIONES / EVENTOS
     @Override
@@ -342,6 +348,41 @@ public class EventoServiceImpl implements EventoService {
                     "lugar",
                     String.valueOf(lugarAnterior),
                     String.valueOf(request.idLugar())
+            );
+        }
+
+        //bloque para notificar
+        if (estadoAnterior == Evento.estadoevento.PUBLICADO) {
+
+            if (!Objects.equals(fechainiAnterior, request.fechaini())
+                    || !Objects.equals(fechafinAnterior, request.fechafin())) {
+
+                notificacionService.notificarInscritos(
+                        id,
+                        "Se ha modificado la fecha del evento: " + eventoExistente.getTitulo(),
+                        Notificacion.tiponotificacion.CAMBIO
+                );
+            }
+
+            if (request.idLugar() != null
+                    && !Objects.equals(lugarAnterior, request.idLugar())) {
+
+                notificacionService.notificarInscritos(
+                        id,
+                        "Se ha modificado el lugar del evento: " + eventoExistente.getTitulo(),
+                        Notificacion.tiponotificacion.CAMBIO
+                );
+            }
+        }
+
+        // Notificar cuando se cancela un evento
+        if (estadoAnterior != Evento.estadoevento.CANCELADO
+                && request.estado() == Evento.estadoevento.CANCELADO) {
+
+            notificacionService.notificarInscritos(
+                    id,
+                    "Se ha cancelado el evento: " + eventoExistente.getTitulo(),
+                    Notificacion.tiponotificacion.CANCELACION
             );
         }
 
