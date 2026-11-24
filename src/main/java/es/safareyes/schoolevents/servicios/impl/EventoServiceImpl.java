@@ -8,8 +8,10 @@ import es.safareyes.schoolevents.dto.response.EventoResponse;
 import es.safareyes.schoolevents.mapper.EventoMapper;
 import es.safareyes.schoolevents.modelos.Categoria;
 import es.safareyes.schoolevents.modelos.Evento;
+import es.safareyes.schoolevents.modelos.Lugar;
 import es.safareyes.schoolevents.repositorios.ICategoriaRepository;
 import es.safareyes.schoolevents.repositorios.IEventoRepository;
+import es.safareyes.schoolevents.repositorios.ILugarRepository;
 import es.safareyes.schoolevents.servicios.CambioEventoService;
 import es.safareyes.schoolevents.servicios.EventoService;
 import lombok.AllArgsConstructor;
@@ -29,6 +31,7 @@ public class EventoServiceImpl implements EventoService {
     private ICategoriaRepository categoriaRepository;
     private EventoMapper eventoMapper;
     private CambioEventoService cambioEventoService;
+    private ILugarRepository lugarRepository;
 
     // 1. LISTAR TODAS LAS PUBLICACIONES / EVENTOS
     @Override
@@ -188,7 +191,7 @@ public class EventoServiceImpl implements EventoService {
                 request.fechafin()
         );
 
-        //si la lista NO esta vacia, osea que este evento creado se solapa con otro, lanza excepcion
+        //si la lista NO esta vacia osea que este evento creado se solapa con otro lanza excepcion
         if (!eventosSolapados.isEmpty()) {
             throw new ReglaNegocio1Exception(
                     "Ya existe otro evento en ese lugar que se solapa con las fechas indicadas"
@@ -201,7 +204,7 @@ public class EventoServiceImpl implements EventoService {
         return dto;
     }
 
-    // 8. ACTUALIZAR UN EVENTO EXISTENTE
+    // 8. modificar UN EVENTO EXISTENTE
     @Override
     @Transactional
     public EventoResponse actualizar(Integer id, EventoRequest request) {
@@ -235,6 +238,9 @@ public class EventoServiceImpl implements EventoService {
         Integer categoriaAnterior = eventoExistente.getCategoria() != null
                 ? eventoExistente.getCategoria().getId()
                 : null;
+        Integer lugarAnterior = eventoExistente.getLugar() != null
+                ? eventoExistente.getLugar().getId()
+                : null;
 
         // Actualizamos los valores
         eventoExistente.setTitulo(request.titulo());
@@ -257,12 +263,25 @@ public class EventoServiceImpl implements EventoService {
             eventoExistente.setCategoria(categoriaEncontrada);
         }
 
+        if (request.idLugar() != null) {
+
+            Lugar lugarEncontrado =
+                    lugarRepository.findById(request.idLugar()).orElse(null);
+
+            if (lugarEncontrado == null) {
+                throw new RecursoNoEncontradoException(
+                        "No existe el lugar con el ID: " + request.idLugar()
+                );
+            }
+
+            eventoExistente.setLugar(lugarEncontrado);
+        }
+
 
 
         Evento guardado = eventoRepository.save(eventoExistente);
 
-        // Registrar automáticamente los cambios
-
+        // Registrar automáticamente los cambios en cambioevento
         if (!Objects.equals(tituloAnterior, request.titulo())) {
             cambioEventoService.registrarCambio(
                     id,
@@ -314,6 +333,15 @@ public class EventoServiceImpl implements EventoService {
                     "categoria",
                     String.valueOf(categoriaAnterior),
                     String.valueOf(request.idCategoria())
+            );
+        }
+
+        if (!Objects.equals(lugarAnterior, request.idLugar())) {
+            cambioEventoService.registrarCambio(
+                    id,
+                    "lugar",
+                    String.valueOf(lugarAnterior),
+                    String.valueOf(request.idLugar())
             );
         }
 
