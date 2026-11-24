@@ -90,9 +90,10 @@ public class InscripcionController {
 
         for (Object[] fila : informe) {
 
-            String categoria = (String) fila[0];
-            String curso = (String) fila[1];
-            Long participantes = ((Number) fila[2]).longValue();
+            // Recogemos los datos de la consulta
+            String categoria = (String) fila[0]; // Nombre de la categoría
+            String curso = (String) fila[1];     // Nombre del curso
+            Long participantes = ((Number) fila[2]).longValue(); // Número de participantes
 
             ParticipacionCursoResponse cursoResponse =
                     new ParticipacionCursoResponse(curso, participantes);
