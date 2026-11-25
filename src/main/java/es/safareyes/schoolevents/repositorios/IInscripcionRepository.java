@@ -17,6 +17,12 @@ public interface IInscripcionRepository extends JpaRepository<Inscripcion, Integ
     @EntityGraph(attributePaths = {"usuario", "evento"})
     List<Inscripcion> findByEventoId(Integer eventoId);
 
+    @EntityGraph(attributePaths = {"usuario", "evento"})
+    List<Inscripcion> findByEventoIdAndEstado(
+            Integer eventoId,
+            Inscripcion.estadoinscripcion estado
+    );
+
     @EntityGraph(attributePaths = {"evento", "evento.lugar", "evento.categoria"})
     List<Inscripcion> findByUsuarioId(Integer usuarioId);
 
@@ -48,4 +54,8 @@ public interface IInscripcionRepository extends JpaRepository<Inscripcion, Integ
             @Param("hasta") LocalDateTime hasta);
 
 
+
+
+
 }
+

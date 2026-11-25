@@ -17,4 +17,9 @@ public interface InscripcionService {
             LocalDateTime hasta
     );
 
+    // para pasar lista
+    List<InscripcionResponse> listarConfirmados(Integer eventoId);
+    // para ver lista de espera
+    List<InscripcionResponse> listarEnEspera(Integer eventoId);
+
 }

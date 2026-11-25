@@ -124,4 +124,22 @@ public class InscripcionController {
 
         return ResponseEntity.ok(respuesta);
     }
+
+    @GetMapping("/evento/{eventoId}/confirmados")
+    public ResponseEntity<List<InscripcionResponse>> listarConfirmados(
+            @PathVariable Integer eventoId) {
+
+        return ResponseEntity.ok(
+                inscripcionService.listarConfirmados(eventoId)
+        );
+    }
+
+    @GetMapping("/evento/{eventoId}/espera")
+    public ResponseEntity<List<InscripcionResponse>> listarEnEspera(
+            @PathVariable Integer eventoId) {
+
+        return ResponseEntity.ok(
+                inscripcionService.listarEnEspera(eventoId)
+        );
+    }
 }

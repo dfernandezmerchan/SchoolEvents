@@ -236,4 +236,33 @@ public class InscripcionServiceImpl implements InscripcionService {
         return inscripcionRepository.getInformeParticipacion(desde, hasta);
     }
 
+
+    @Override
+    public List<InscripcionResponse> listarConfirmados(Integer eventoId) {
+
+        List<Inscripcion> inscripciones =
+                inscripcionRepository.findByEventoIdAndEstado(
+                        eventoId,
+                        Inscripcion.estadoinscripcion.CONFIRMADA
+                );
+
+        return inscripciones.stream()
+                .map(inscripcionMapper::aResponse)
+                .toList();
+    }
+
+    @Override
+    public List<InscripcionResponse> listarEnEspera(Integer eventoId) {
+
+        List<Inscripcion> inscripciones =
+                inscripcionRepository.findByEventoIdAndEstado(
+                        eventoId,
+                        Inscripcion.estadoinscripcion.EN_ESPERA
+                );
+
+        return inscripciones.stream()
+                .map(inscripcionMapper::aResponse)
+                .toList();
+    }
+
 }
