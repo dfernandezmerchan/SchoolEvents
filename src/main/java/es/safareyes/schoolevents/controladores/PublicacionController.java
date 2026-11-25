@@ -58,16 +58,28 @@ public class PublicacionController {
     }
 
     // 4. ACTUALIZAR UNa PUBLICACION EXISTENTE
+    // ACTUALIZAR UNA PUBLICACIÓN
     @PutMapping("/{id}")
-    public ResponseEntity<PublicacionResponse> actualizar(@PathVariable Integer id, @Valid @RequestBody PublicacionRequest request) {
-        PublicacionResponse actualizado = publicacionService.actualizar(id, request);
+    public ResponseEntity<PublicacionResponse> actualizar(
+            @PathVariable Integer id,
+            @RequestParam Integer usuarioId,
+            @Valid @RequestBody PublicacionRequest request) {
+
+        PublicacionResponse actualizado =
+                publicacionService.actualizar(id, usuarioId, request);
+
         return ResponseEntity.ok(actualizado);
     }
 
     // 5. ELIMINAR UNa publicacion
+    // ELIMINAR UNA PUBLICACIÓN
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        publicacionService.eliminar(id);
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Integer id,
+            @RequestParam Integer usuarioId) {
+
+        publicacionService.eliminar(id, usuarioId);
+
         return ResponseEntity.noContent().build();
     }
 

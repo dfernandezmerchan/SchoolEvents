@@ -4,12 +4,8 @@ import es.safareyes.schoolevents.Errores.RecursoNoEncontradoException;
 import es.safareyes.schoolevents.dto.request.PublicacionRequest;
 import es.safareyes.schoolevents.dto.response.PublicacionResponse;
 import es.safareyes.schoolevents.mapper.PublicacionMapper;
-import es.safareyes.schoolevents.modelos.Evento;
-import es.safareyes.schoolevents.modelos.Publicacion;
-import es.safareyes.schoolevents.modelos.Usuario;
-import es.safareyes.schoolevents.repositorios.IEventoRepository;
-import es.safareyes.schoolevents.repositorios.IPublicacionRepository;
-import es.safareyes.schoolevents.repositorios.IUsuarioRepository;
+import es.safareyes.schoolevents.modelos.*;
+import es.safareyes.schoolevents.repositorios.*;
 import es.safareyes.schoolevents.servicios.PublicacionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +22,9 @@ public class PublicacionServiceImpl implements PublicacionService {
     private IPublicacionRepository publicacionRepository;
     private IEventoRepository eventoRepository;
     private IUsuarioRepository usuarioRepository;
+    private IFotoRepository fotoRepository;
+    private IInscripcionRepository inscripcionRepository;
+
     private PublicacionMapper publicacionMapper;
 
     // 1. LISTAR TODAS LAS PUBLICACIONES
@@ -96,91 +95,190 @@ public class PublicacionServiceImpl implements PublicacionService {
     @Transactional
     public PublicacionResponse crear(PublicacionRequest request) {
 
-        // DTO -> Entidad
+        // 1. Buscar el evento
+        Evento evento = eventoRepository.findById(request.idEvento()).orElse(null);
+
+        if (evento == null) {
+            throw new RecursoNoEncontradoException(
+                    "No existe el evento con el ID: " + request.idEvento()
+            );
+        }
+
+        // Comprobar que el evento está finalizado
+        if (evento.getEstado() != Evento.estadoevento.FINALIZADO) {
+            throw new RuntimeException(
+                    "Solo se pueden publicar resultados de eventos finalizados"
+            );
+        }
+
+        // busca el usuario
+        Usuario usuario = usuarioRepository.findById(request.idUsuario()).orElse(null);
+
+        if (usuario == null) {
+            throw new RecursoNoEncontradoException(
+                    "No existe el usuario con el ID: " + request.idUsuario()
+            );
+        }
+
+        // comprueba si el usuario es el organizador
+        boolean esOrganizador = evento.getOrganizador() != null
+                && evento.getOrganizador().getId().equals(usuario.getId());
+
+        //  Si no es el organizador se comprueba su inscripción
+        if (!esOrganizador) {
+
+            Inscripcion inscripcion = inscripcionRepository.findByEventoIdAndUsuarioId(evento.getId(), usuario.getId())
+                    .orElse(null);
+
+            if (inscripcion == null
+                    || inscripcion.getEstado() != Inscripcion.estadoinscripcion.CONFIRMADA) {
+
+                throw new RuntimeException(
+                        "Solo el organizador o los estudiantes con inscripción confirmada pueden publicar resultados"
+                );
+            }
+        }
+
+        // 6. Convertir el DTO en entidad
         Publicacion nuevaPublicacion = publicacionMapper.aEntidad(request);
 
-        // Se asigna automáticamente la fecha actual del sistema
         nuevaPublicacion.setFecha(new Date());
+        nuevaPublicacion.setEvento(evento);
+        nuevaPublicacion.setUsuario(usuario);
 
-        // Validar y asignar Evento
-        if (request.idEvento() != null) {
-            Evento evento = eventoRepository.findById(request.idEvento()).orElse(null);
-
-            if (evento == null) {
-                throw new RecursoNoEncontradoException( "No existe el evento con el ID: " + request.idEvento());
-            }
-            nuevaPublicacion.setEvento(evento);
-        }
-
-        // Validar y asignar Usuario
-        if (request.idUsuario() != null) {
-            Usuario usuario = usuarioRepository.findById(request.idUsuario()).orElse(null);
-            if (usuario == null) {
-                throw new RecursoNoEncontradoException("No existe el usuario con el ID: " + request.idUsuario());
-            }
-            nuevaPublicacion.setUsuario(usuario);
-        }
-
+        // 7. Guardar la publicación
         Publicacion guardada = publicacionRepository.save(nuevaPublicacion);
 
-        PublicacionResponse dto = publicacionMapper.aResponse(guardada);
-        return dto;
+        // 8. Guardar las fotografías
+        if (request.fotos() != null) {
+
+            if (request.fotos().size() > 10) {
+                throw new RuntimeException("No puedes adjuntar más de 10 fotografías");
+            }
+
+            List<Foto> fotos = new ArrayList<>();
+
+            for (String url : request.fotos()) {
+
+                Foto foto = new Foto();
+                foto.setUrl(url);
+                foto.setPublicacion(guardada);
+
+                fotos.add(foto);
+            }
+
+            fotoRepository.saveAll(fotos);
+
+            guardada.setFotos(fotos);
+        }
+
+        // 9. Devolver la respuesta
+        return publicacionMapper.aResponse(guardada);
     }
 
     // 6. ACTUALIZAR PUBLICACIÓN
     @Override
     @Transactional
-    public PublicacionResponse actualizar(Integer id, PublicacionRequest request) {
+    public PublicacionResponse actualizar(Integer id, Integer usuarioId, PublicacionRequest request) {
 
-        Publicacion publicacionExistente = publicacionRepository.findById(id).orElse(null);
+        // 1. Comprobar si la publicación existe
+        Publicacion publicacion = publicacionRepository.findById(id).orElse(null);
 
-        if (publicacionExistente == null) {
-            throw new RecursoNoEncontradoException("No se puede actualizar. No existe la publicación con ID: " + id);
+        if (publicacion == null) {
+            throw new RecursoNoEncontradoException("No existe una publicación con ese ID");
         }
 
-        // Actualizar datos propios (se mantiene la fecha original de publicación intacta)
-        publicacionExistente.setTitulo(request.titulo());
-        publicacionExistente.setDescripcion(request.descripcion());
+        // 2. Comprobar si el usuario existe
+        Usuario usuario = usuarioRepository.findById(usuarioId).orElse(null);
 
-        // Actualizar relación Evento
-        if (request.idEvento() != null) {
-            Evento evento = eventoRepository.findById(request.idEvento()).orElse(null);
-            if (evento == null) {
-                throw new RuntimeException("No existe el evento con el ID: " + request.idEvento());
+        if (usuario == null) {
+            throw new RecursoNoEncontradoException("No existe un usuario con ese ID");
+        }
+
+        // 3. Comprobar que el usuario es el autor de la publicación
+        if (!publicacion.getUsuario().getId().equals(usuario.getId())) {
+            throw new RuntimeException("Solo el autor puede modificar esta publicación");
+        }
+
+        // 4. Actualizar los datos de la publicación
+        publicacion.setTitulo(request.titulo());
+        publicacion.setDescripcion(request.descripcion());
+
+        // 5. Actualizar las fotografías
+        if (request.fotos() != null) {
+
+            if (request.fotos().size() > 10) {
+                throw new RuntimeException(
+                        "No puedes adjuntar más de 10 fotografías"
+                );
             }
-            publicacionExistente.setEvento(evento);
-        } else {
-            publicacionExistente.setEvento(null);
-        }
 
-        // Actualizar relación Usuario
-        if (request.idUsuario() != null) {
-            Usuario usuario = usuarioRepository.findById(request.idUsuario()).orElse(null);
-            if (usuario == null) {
-                throw new RuntimeException("No existe el usuario con el ID: " + request.idUsuario());
+            // Eliminar las fotografías anteriores
+            fotoRepository.deleteAll(
+                    fotoRepository.findByPublicacionId(id)
+            );
+
+            List<Foto> fotosActualizadas = new ArrayList<>();
+
+            // Crear las nuevas fotografías
+            for (String url : request.fotos()) {
+
+                Foto foto = new Foto();
+                foto.setUrl(url);
+                foto.setPublicacion(publicacion);
+
+                fotosActualizadas.add(foto);
             }
-            publicacionExistente.setUsuario(usuario);
-        } else {
-            publicacionExistente.setUsuario(null);
+
+            // Guardar las nuevas fotografías
+            List<Foto> fotosGuardadas = fotoRepository.saveAll(fotosActualizadas);
+
+            publicacion.setFotos(fotosGuardadas);
         }
 
-        Publicacion actualizada = publicacionRepository.save(publicacionExistente);
+        // 6. Guardar los cambios de la publicación
+        Publicacion actualizada = publicacionRepository.save(publicacion);
 
-        PublicacionResponse dto = publicacionMapper.aResponse(actualizada);
-        return dto;
+        // 7. Devolver la publicación actualizada
+        return publicacionMapper.aResponse(actualizada);
     }
 
     // 7. ELIMINAR PUBLICACIÓN
     @Override
     @Transactional
-    public void eliminar(Integer id) {
+    public void eliminar(Integer id, Integer usuarioId) {
 
-        boolean existe = publicacionRepository.existsById(id);
+        // 1. Buscar la publicación
+        Publicacion publicacion = publicacionRepository.findById(id).orElse(null);
 
-        if (!existe) {
-            throw new RuntimeException("No se puede eliminar. No existe la publicación con ID: " + id);
+        if (publicacion == null) {
+            throw new RecursoNoEncontradoException(
+                    "No existe la publicación con el ID: " + id
+            );
         }
 
-        publicacionRepository.deleteById(id);
+        // 2. Comprobar que el usuario existe
+        Usuario usuario = usuarioRepository.findById(usuarioId).orElse(null);
+
+        if (usuario == null) {
+            throw new RecursoNoEncontradoException(
+                    "No existe el usuario con el ID: " + usuarioId
+            );
+        }
+
+        // 3. Comprobar que el usuario es el autor
+        if (!publicacion.getUsuario().getId().equals(usuario.getId())) {
+            throw new RuntimeException(
+                    "No puedes eliminar una publicación de otro usuario"
+            );
+        }
+
+        // 4. Eliminar las fotografías asociadas
+        fotoRepository.deleteAll(
+                fotoRepository.findByPublicacionId(id)
+        );
+
+        // 5. Eliminar la publicación
+        publicacionRepository.delete(publicacion);
     }
 }

@@ -11,6 +11,7 @@ public interface PublicacionService {
     List<PublicacionResponse> listarPorUsuario(Integer usuarioId);
     PublicacionResponse buscarPorId(Integer id);
     PublicacionResponse crear(PublicacionRequest request);
-    PublicacionResponse actualizar(Integer id, PublicacionRequest request);
-    void eliminar(Integer id);
+    PublicacionResponse actualizar(Integer id, Integer usuarioId, PublicacionRequest request);
+    void eliminar(Integer id, Integer usuarioId);
+
 }

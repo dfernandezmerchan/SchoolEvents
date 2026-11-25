@@ -11,10 +11,12 @@ import java.util.List;
 @Repository
 public interface IPublicacionRepository extends JpaRepository<Publicacion, Integer> {
     @Override
-    @EntityGraph(attributePaths = {"fotos"})
+    @EntityGraph(attributePaths = {"fotos", "evento", "usuario"})
     List<Publicacion> findAll();
 
+    @EntityGraph(attributePaths = {"fotos", "evento", "usuario"})
     List<Publicacion> findByUsuarioId(Integer usuarioId);
 
+    @EntityGraph(attributePaths = {"fotos", "evento", "usuario"})
     List<Publicacion> findByEventoId(Integer eventoId);
 }
