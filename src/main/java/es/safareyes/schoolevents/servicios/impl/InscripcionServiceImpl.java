@@ -6,9 +6,11 @@ import es.safareyes.schoolevents.dto.response.InscripcionResponse;
 import es.safareyes.schoolevents.mapper.InscripcionMapper;
 import es.safareyes.schoolevents.modelos.Evento;
 import es.safareyes.schoolevents.modelos.Inscripcion;
+import es.safareyes.schoolevents.modelos.Notificacion;
 import es.safareyes.schoolevents.modelos.Usuario;
 import es.safareyes.schoolevents.repositorios.*;
 import es.safareyes.schoolevents.servicios.InscripcionService;
+import es.safareyes.schoolevents.servicios.NotificacionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,18 +24,18 @@ import java.util.Optional;
 @AllArgsConstructor
 public class InscripcionServiceImpl implements InscripcionService {
 
-    // Necesitamos 3 repositorios (Inscripcion, Usuario y Evento) y el Mapper
     private IInscripcionRepository inscripcionRepository;
     private IUsuarioRepository usuarioRepository;
     private IEventoRepository eventoRepository;
     private InscripcionMapper inscripcionMapper;
+    private NotificacionService notificacionService;
 
-    // 1. INSCRIBIR A UN USUARIO EN UN EVENTO
+    //INSCRIBIR A UN USUARIO EN UN EVENTO
     @Override
     @Transactional
     public InscripcionResponse inscribirse(InscripcionRequest request) {
 
-        // PASO A: Comprobar si el usuario existe en PostgreSQL
+        //Comprobar si el usuario existe en la bd
         Usuario usuario = usuarioRepository.findById(request.idUsuario()).orElse(null);
 
         if (usuario == null) {
@@ -42,7 +44,7 @@ public class InscripcionServiceImpl implements InscripcionService {
             );
         }
 
-        // PASO B: Comprobar si el evento existe en PostgreSQL
+        //Comprobar si el evento existe en PostgreSQL
         Evento evento = eventoRepository.findById(request.idEvento()).orElse(null);
 
         if (evento == null) {
@@ -93,14 +95,14 @@ public class InscripcionServiceImpl implements InscripcionService {
             return inscripcionMapper.aResponse(inscripcionExistente.get());
         }
 
-        // PASO C: Convertir el DTO Request a la entidad Inscripcion
+        //Convertir el DTO Request a la entidad Inscripcion
         Inscripcion nuevaInscripcion = inscripcionMapper.aEntidad(request);
 
-        // PASO D: Asignar usuario y evento
+        //Asignar usuario y evento
         nuevaInscripcion.setUsuario(usuario);
         nuevaInscripcion.setEvento(evento);
 
-        // PASO E: Comprobar cuántas plazas están ocupadas
+        // comprobar cuántas plazas están ocupadas
         long confirmadas = inscripcionRepository.countByEventoIdAndEstado(
                 evento.getId(),
                 Inscripcion.estadoinscripcion.CONFIRMADA
@@ -121,16 +123,16 @@ public class InscripcionServiceImpl implements InscripcionService {
         // Fecha de la inscripción
         nuevaInscripcion.setFecha(LocalDateTime.now());
 
-        // PASO F: Guardar la inscripción
+        //Guardar la inscripción
         Inscripcion guardada = inscripcionRepository.save(nuevaInscripcion);
 
-        // PASO G: Convertir a DTO de respuesta
+        //Convertir a DTO de respuesta
         InscripcionResponse respuestaDto = inscripcionMapper.aResponse(guardada);
 
         return respuestaDto;
     }
 
-    // 2. CANCELAR INCRIPCIÓN POR EVENTO Y USUARIO
+    // CANCELAR INCRIPCIÓN POR EVENTO Y USUARIO
     @Override
     @Transactional
     public void cancelarInscripcion(Integer eventoId, Integer usuarioId) {
@@ -170,6 +172,14 @@ public class InscripcionServiceImpl implements InscripcionService {
             );
 
             inscripcionRepository.save(inscripcionSiguiente);
+
+            // Notificar al usuario que ha conseguido plaza
+            notificacionService.notificarUsuario(
+                    inscripcionSiguiente.getUsuario().getId(),
+                    eventoId,
+                    "Tu inscripción al evento ha sido confirmada. Ya tienes una plaza.",
+                    Notificacion.tiponotificacion.CAMBIO
+            );
         }
     }
 

@@ -258,6 +258,35 @@ public class NotificacionServiceImpl implements NotificacionService {
 
     }
 
+    @Override
+    @Transactional
+    public void notificarUsuario(
+            Integer usuarioId,
+            Integer eventoId,
+            String mensaje,
+            Notificacion.tiponotificacion tipo) {
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el usuario con el ID: " + usuarioId
+                ));
+
+        Evento evento = eventoRepository.findById(eventoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el evento con el ID: " + eventoId
+                ));
+
+        Notificacion notificacion = new Notificacion();
+
+        notificacion.setMensaje(mensaje);
+        notificacion.setLeida(false);
+        notificacion.setTipo(tipo);
+        notificacion.setUsuario(usuario);
+        notificacion.setEvento(evento);
+
+        notificacionRepository.save(notificacion);
+    }
+
 
 
 }

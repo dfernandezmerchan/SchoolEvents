@@ -16,5 +16,11 @@ public interface NotificacionService {
     void marcarComoLeida(Integer id); // Nuevo método
     void crearNotificacionesRecordatorio();
 
+    void notificarUsuario(
+            Integer usuarioId,
+            Integer eventoId,
+            String mensaje,
+            Notificacion.tiponotificacion tipo
+    );
     void notificarInscritos(Integer eventoId, String mensaje, Notificacion.tiponotificacion tipo);
 }
