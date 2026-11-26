@@ -1,5 +1,6 @@
 package es.safareyes.schoolevents.repositorios;
 
+import es.safareyes.schoolevents.dto.response.InformeParticipacionResponse;
 import es.safareyes.schoolevents.modelos.Inscripcion;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -49,7 +50,7 @@ public interface IInscripcionRepository extends JpaRepository<Inscripcion, Integ
     GROUP BY cat.nombre, cur.nombre
     ORDER BY cat.nombre, cur.nombre
     """, nativeQuery = true)
-    List<Object[]> getInformeParticipacion(
+    List<InformeParticipacionResponse> getInformeParticipacion(
             @Param("desde") LocalDateTime desde,
             @Param("hasta") LocalDateTime hasta);
 

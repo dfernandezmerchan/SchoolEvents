@@ -2,6 +2,7 @@ package es.safareyes.schoolevents.servicios.impl;
 
 import es.safareyes.schoolevents.Errores.*;
 import es.safareyes.schoolevents.dto.request.InscripcionRequest;
+import es.safareyes.schoolevents.dto.response.InformeParticipacionResponse;
 import es.safareyes.schoolevents.dto.response.InscripcionResponse;
 import es.safareyes.schoolevents.mapper.InscripcionMapper;
 import es.safareyes.schoolevents.modelos.Evento;
@@ -239,7 +240,7 @@ public class InscripcionServiceImpl implements InscripcionService {
     //informe de participación de un evento concreto
     @Override
     @Transactional(readOnly = true)
-    public List<Object[]> getInformeParticipacion(
+    public List<InformeParticipacionResponse> getInformeParticipacion(
             LocalDateTime desde,
             LocalDateTime hasta) {
 

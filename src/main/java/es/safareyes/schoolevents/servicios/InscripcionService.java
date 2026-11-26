@@ -1,6 +1,7 @@
 package es.safareyes.schoolevents.servicios;
 
 import es.safareyes.schoolevents.dto.request.InscripcionRequest;
+import es.safareyes.schoolevents.dto.response.InformeParticipacionResponse;
 import es.safareyes.schoolevents.dto.response.InscripcionResponse;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ public interface InscripcionService {
     List<InscripcionResponse> listarPorEvento(Integer eventoId);
     List<InscripcionResponse> agendaUsuario(Integer usuarioId);
     InscripcionResponse buscarPorId(Integer id);
-    List<Object[]> getInformeParticipacion(
+    List<InformeParticipacionResponse> getInformeParticipacion(
             LocalDateTime desde,
             LocalDateTime hasta
     );
