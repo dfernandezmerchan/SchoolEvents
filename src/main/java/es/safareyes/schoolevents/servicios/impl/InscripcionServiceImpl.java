@@ -2,7 +2,7 @@ package es.safareyes.schoolevents.servicios.impl;
 
 import es.safareyes.schoolevents.Errores.*;
 import es.safareyes.schoolevents.dto.request.InscripcionRequest;
-import es.safareyes.schoolevents.dto.response.InformeParticipacionResponse;
+import es.safareyes.schoolevents.dto.response.InformeParticipacion.InformeParticipacionResponse;
 import es.safareyes.schoolevents.dto.response.InscripcionResponse;
 import es.safareyes.schoolevents.mapper.InscripcionMapper;
 import es.safareyes.schoolevents.modelos.Evento;

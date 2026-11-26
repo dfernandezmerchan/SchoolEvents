@@ -1,4 +1,4 @@
-package es.safareyes.schoolevents.dto.response;
+package es.safareyes.schoolevents.dto.response.InformeParticipacion;
 
 public interface InformeParticipacionResponse {
 

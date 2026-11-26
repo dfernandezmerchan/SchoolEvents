@@ -1,6 +1,6 @@
 package es.safareyes.schoolevents.repositorios;
 
-import es.safareyes.schoolevents.dto.response.InformeParticipacionResponse;
+import es.safareyes.schoolevents.dto.response.InformeParticipacion.InformeParticipacionResponse;
 import es.safareyes.schoolevents.modelos.Inscripcion;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;

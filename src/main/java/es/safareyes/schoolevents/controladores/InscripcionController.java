@@ -1,6 +1,7 @@
 package es.safareyes.schoolevents.controladores;
 
 import es.safareyes.schoolevents.dto.request.InscripcionRequest;
+import es.safareyes.schoolevents.dto.response.InformeParticipacion.InformeParticipacionResponse;
 import es.safareyes.schoolevents.dto.response.InscripcionResponse;
 import es.safareyes.schoolevents.dto.response.ParticipacionCursoResponse;
 import es.safareyes.schoolevents.dto.response.ParticipacionInformeResponse;
@@ -77,49 +78,48 @@ public class InscripcionController {
         return ResponseEntity.ok(inscripcion);
     }
 
-    //informe de un evento
+
+    // Informe de participación de un evento agrupado por categorías
     @GetMapping("/informe")
     public ResponseEntity<List<ParticipacionInformeResponse>> getInformeParticipacion(
             @RequestParam LocalDateTime desde,
             @RequestParam LocalDateTime hasta) {
 
-        List<Object[]> informe =
+        // Obtenemos los datos del informe
+        List<InformeParticipacionResponse> informe =
                 inscripcionService.getInformeParticipacion(desde, hasta);
 
         List<ParticipacionInformeResponse> respuesta = new ArrayList<>();
 
-        for (Object[] fila : informe) {
+        for (InformeParticipacionResponse fila : informe) {
 
-            // Recogemos los datos de la consulta
-            String categoria = (String) fila[0]; // Nombre de la categoría
-            String curso = (String) fila[1];     // Nombre del curso
-            Long participantes = ((Number) fila[2]).longValue(); // Número de participantes
+            // Comprobamos si la categoría ya está creada
+            ParticipacionInformeResponse categoria = null;
 
-            ParticipacionCursoResponse cursoResponse =
-                    new ParticipacionCursoResponse(curso, participantes);
-
-            ParticipacionInformeResponse categoriaExistente = null;
-
-            for (ParticipacionInformeResponse categoriaResponse : respuesta) {
-                if (categoriaResponse.categoria().equals(categoria)) {
-                    categoriaExistente = categoriaResponse;
+            for (ParticipacionInformeResponse elemento : respuesta) {
+                if (elemento.categoria().equals(fila.getCategoria())) {
+                    categoria = elemento;
                     break;
                 }
             }
 
-            if (categoriaExistente == null) {
-
-                List<ParticipacionCursoResponse> cursos = new ArrayList<>();
-                cursos.add(cursoResponse);
-
-                respuesta.add(
-                        new ParticipacionInformeResponse(categoria, cursos)
+            // Si no existe, creamos la categoría
+            if (categoria == null) {
+                categoria = new ParticipacionInformeResponse(
+                        fila.getCategoria(),
+                        new ArrayList<>()
                 );
 
-            } else {
-
-                categoriaExistente.cursos().add(cursoResponse);
+                respuesta.add(categoria);
             }
+
+            // Añadimos el curso y su número de participantes a la categoría
+            categoria.cursos().add(
+                    new ParticipacionCursoResponse(
+                            fila.getCurso(),
+                            fila.getTotalParticipantes()
+                    )
+            );
         }
 
         return ResponseEntity.ok(respuesta);

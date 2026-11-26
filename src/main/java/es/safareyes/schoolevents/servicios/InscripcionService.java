@@ -1,7 +1,7 @@
 package es.safareyes.schoolevents.servicios;
 
 import es.safareyes.schoolevents.dto.request.InscripcionRequest;
-import es.safareyes.schoolevents.dto.response.InformeParticipacionResponse;
+import es.safareyes.schoolevents.dto.response.InformeParticipacion.InformeParticipacionResponse;
 import es.safareyes.schoolevents.dto.response.InscripcionResponse;
 
 import java.time.LocalDateTime;
