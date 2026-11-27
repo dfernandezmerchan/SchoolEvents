@@ -24,13 +24,7 @@ public class EventoController {
     private EventoService eventoService;
 
     //GET  - consultar todos los eventos paginados
-    // /api/v1/eventos?page=1&size=10 pagina
-    // GET /api/v1/eventos?categoriaId=2 por categoria
-    // GET /api/v1/eventos?cursoId=3 por curso
-    // GET /api/v1/eventos?texto=futbol por texto en un buscador
-    // GET /api/v1/eventos?desde=2026-12-01T00:00:00&hasta=2026-12-31T23:59:59 por fechas
-    // EJEMPLO COMBINANDO TO
-    // GET /api/v1/eventos?categoriaId=2&cursoId=3&texto=futbol&desde=2026-12-01T00:00:00&hasta=2026-12-31T23:59:59&page=0&size=10
+    // GET /api/v1/eventos
     @GetMapping
     public ResponseEntity<List<EventoResponse>> listarEventos(
             @RequestParam(defaultValue = "0") int page,
@@ -42,6 +36,7 @@ public class EventoController {
     }
 
     //listar con filtros
+    // 1. GET /api/v1/eventos/filtros?categoriaId=2&estado=PUBLICADO
     @GetMapping("/filtros")
     public ResponseEntity<List<EventoResponse>> listarEventosFiltros(
             @RequestParam(required = false) Integer categoriaId,

@@ -6,13 +6,8 @@ import es.safareyes.schoolevents.Errores.ReglaNegocioException;
 import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.EventoResponse;
 import es.safareyes.schoolevents.mapper.EventoMapper;
-import es.safareyes.schoolevents.modelos.Categoria;
-import es.safareyes.schoolevents.modelos.Evento;
-import es.safareyes.schoolevents.modelos.Lugar;
-import es.safareyes.schoolevents.modelos.Notificacion;
-import es.safareyes.schoolevents.repositorios.ICategoriaRepository;
-import es.safareyes.schoolevents.repositorios.IEventoRepository;
-import es.safareyes.schoolevents.repositorios.ILugarRepository;
+import es.safareyes.schoolevents.modelos.*;
+import es.safareyes.schoolevents.repositorios.*;
 import es.safareyes.schoolevents.servicios.CambioEventoService;
 import es.safareyes.schoolevents.servicios.EventoService;
 import es.safareyes.schoolevents.servicios.NotificacionService;
@@ -23,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -36,8 +29,8 @@ public class EventoServiceImpl implements EventoService {
     private IEventoRepository eventoRepository;
     private ICategoriaRepository categoriaRepository;
     private ILugarRepository lugarRepository;
-
-
+    private IUsuarioRepository usuarioRepository;
+    private ICursoRepository cursoRepository;
     private CambioEventoService cambioEventoService;
     private NotificacionService notificacionService;
 
@@ -166,6 +159,36 @@ public class EventoServiceImpl implements EventoService {
     public EventoResponse crear(EventoRequest request) {
 
         Evento nuevoEvento = eventoMapper.aEntidad(request);
+
+        nuevoEvento.setEstado(Evento.estadoevento.BORRADOR);
+
+        Lugar lugarEncontrado = lugarRepository.findById(request.idLugar())
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el lugar con el ID: " + request.idLugar()));
+
+        nuevoEvento.setLugar(lugarEncontrado);
+
+        Usuario organizadorEncontrado = usuarioRepository.findById(request.idOrganizador())
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el usuario con el ID: " + request.idOrganizador()));
+
+        nuevoEvento.setOrganizador(organizadorEncontrado);
+
+        if (request.idsCursos() != null) {
+
+            Set<Curso> cursosEncontrados = new HashSet<>();
+
+            for (Integer idCurso : request.idsCursos()) {
+
+                Curso curso = cursoRepository.findById(idCurso)
+                        .orElseThrow(() -> new RecursoNoEncontradoException(
+                                "No existe el curso con el ID: " + idCurso));
+
+                cursosEncontrados.add(curso);
+            }
+
+            nuevoEvento.setCursos(cursosEncontrados);
+        }
 
         if (request.idCategoria() != null) {
             Categoria categoriaEncontrada = categoriaRepository.findById(request.idCategoria()).orElse(null);
