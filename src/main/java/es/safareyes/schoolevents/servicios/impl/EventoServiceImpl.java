@@ -272,6 +272,14 @@ public class EventoServiceImpl implements EventoService {
         Integer lugarAnterior = eventoExistente.getLugar() != null
                 ? eventoExistente.getLugar().getId()
                 : null;
+        Integer organizadorAnterior = eventoExistente.getOrganizador() != null
+                ? eventoExistente.getOrganizador().getId()
+                : null;
+        Set<Integer> cursosAnteriores = new HashSet<>();
+
+        for (Curso curso : eventoExistente.getCursos()) {
+            cursosAnteriores.add(curso.getId());
+        }
 
         // Actualizamos los valores
         eventoExistente.setTitulo(request.titulo());
@@ -279,6 +287,33 @@ public class EventoServiceImpl implements EventoService {
         eventoExistente.setFechaini(request.fechaini());
         eventoExistente.setFechafin(request.fechafin());
         eventoExistente.setEstado(request.estado());
+
+        Usuario organizador = usuarioRepository.findById(request.idOrganizador())
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el organizador indicado"
+                ));
+
+        eventoExistente.setOrganizador(organizador);
+
+        // Actualizar cursos
+        Set<Curso> cursos = new HashSet<>();
+
+
+
+        if (request.idsCursos() != null) {
+            for (Integer idCurso : request.idsCursos()) {
+                Curso curso = cursoRepository.findById(idCurso)
+                        .orElseThrow(() -> new RecursoNoEncontradoException(
+                                "No existe el curso con ID: " + idCurso
+                        ));
+
+                cursos.add(curso);
+            }
+        }
+
+        eventoExistente.setCursos(cursos);
+
+
 
         if (request.idCategoria() != null) {
 
@@ -313,6 +348,25 @@ public class EventoServiceImpl implements EventoService {
         Evento guardado = eventoRepository.save(eventoExistente);
 
         // Registrar automáticamente los cambios en cambioevento
+
+        if (!Objects.equals(cursosAnteriores, request.idsCursos())) {
+            cambioEventoService.registrarCambio(
+                    id,
+                    "cursos",
+                    String.valueOf(cursosAnteriores),
+                    String.valueOf(request.idsCursos())
+            );
+        }
+
+        if (!Objects.equals(organizadorAnterior, request.idOrganizador())) {
+            cambioEventoService.registrarCambio(
+                    id,
+                    "organizador",
+                    String.valueOf(organizadorAnterior),
+                    String.valueOf(request.idOrganizador())
+            );
+        }
+
         if (!Objects.equals(tituloAnterior, request.titulo())) {
             cambioEventoService.registrarCambio(
                     id,
