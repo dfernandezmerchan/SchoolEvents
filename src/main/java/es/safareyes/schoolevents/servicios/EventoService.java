@@ -3,6 +3,8 @@ package es.safareyes.schoolevents.servicios;
 import es.safareyes.schoolevents.dto.request.EventoRequest;
 import es.safareyes.schoolevents.dto.response.EventoResponse;
 import es.safareyes.schoolevents.modelos.Evento;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +14,17 @@ public interface EventoService {
     // 1. Consultas y lecturas
     List<EventoResponse> listarTodas();
     EventoResponse buscarPorId(Integer id);
+
     List<EventoResponse> listarConFiltros(Integer categoria, Evento.estadoevento estado);
+
+    Page<EventoResponse> listarConFiltros(
+            Integer categoriaId,
+            Integer cursoId,
+            String texto,
+            LocalDateTime desde,
+            LocalDateTime hasta,
+            Pageable pageable);
+
     List<EventoResponse> buscarPorTitulo(String titulo);
     List<EventoResponse> buscarEntreFechas(LocalDateTime desde, LocalDateTime hasta);
 

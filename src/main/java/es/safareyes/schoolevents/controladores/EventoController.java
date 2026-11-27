@@ -6,10 +6,14 @@ import es.safareyes.schoolevents.modelos.Evento;
 import es.safareyes.schoolevents.servicios.EventoService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -19,13 +23,35 @@ public class EventoController {
 
     private EventoService eventoService;
 
-    // 1. GET /api/v1/eventos - consultar todos los eventos
+    //GET  - consultar todos los eventos paginados
+    // /api/v1/eventos?page=1&size=10 pagina
+    // GET /api/v1/eventos?categoriaId=2 por categoria
+    // GET /api/v1/eventos?cursoId=3 por curso
+    // GET /api/v1/eventos?texto=futbol por texto en un buscador
+    // GET /api/v1/eventos?desde=2026-12-01T00:00:00&hasta=2026-12-31T23:59:59 por fechas
+    // EJEMPLO COMBINANDO TODO
+    // GET /api/v1/eventos?categoriaId=2&cursoId=3&texto=futbol&desde=2026-12-01T00:00:00&hasta=2026-12-31T23:59:59&page=0&size=10
     @GetMapping
-    public ResponseEntity<List<EventoResponse>> listarEventos(
+    public ResponseEntity<Page<EventoResponse>> listarEventos(
+            @RequestParam(required = false) Integer categoriaId,
+            @RequestParam(required = false) Integer cursoId,
+            @RequestParam(required = false) String texto,
+            @RequestParam(required = false) LocalDateTime desde,
+            @RequestParam(required = false) LocalDateTime hasta,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        List<EventoResponse> eventos = eventoService.listarTodas();
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<EventoResponse> eventos = eventoService.listarConFiltros(
+                categoriaId,
+                cursoId,
+                texto,
+                desde,
+                hasta,
+                pageable
+        );
+
         return ResponseEntity.ok(eventos);
     }
 
