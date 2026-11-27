@@ -45,28 +45,6 @@ public interface IEventoRepository extends JpaRepository<Evento, Integer> {
     List<Evento> findByEstadoInAndFechainiBetweenOrderByFechainiAsc(
             List<Evento.estadoevento> estados, LocalDateTime desde, LocalDateTime hasta);
 
-
-    @Query("""
-    SELECT DISTINCT e
-    FROM Evento e
-    LEFT JOIN e.cursos c
-    WHERE (:categoriaId IS NULL OR e.categoria.id = :categoriaId)
-    AND (:cursoId IS NULL OR c.id = :cursoId)
-    AND (:texto IS NULL OR LOWER(e.titulo) LIKE LOWER(CONCAT('%', :texto, '%')))
-    AND (:desde IS NULL OR e.fechaini >= :desde)
-    AND (:hasta IS NULL OR e.fechaini <= :hasta)
-    ORDER BY e.fechaini ASC
-""")
-    @EntityGraph(attributePaths = {"categoria", "cursos", "lugar", "organizador"})
-    Page<Evento> buscarConFiltros(
-            @Param("categoriaId") Integer categoriaId,
-            @Param("cursoId") Integer cursoId,
-            @Param("texto") String texto,
-            @Param("desde") LocalDateTime desde,
-            @Param("hasta") LocalDateTime hasta,
-            Pageable pageable
-    );
-
     //filtrar eventos por la id y que deuvelva lugar requisitos plazas libres y cursos
     @Query(value = """
         SELECT 

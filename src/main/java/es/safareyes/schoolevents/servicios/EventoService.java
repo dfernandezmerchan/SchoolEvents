@@ -17,14 +17,6 @@ public interface EventoService {
 
     List<EventoResponse> listarConFiltros(Integer categoria, Evento.estadoevento estado);
 
-    Page<EventoResponse> listarConFiltros(
-            Integer categoriaId,
-            Integer cursoId,
-            String texto,
-            LocalDateTime desde,
-            LocalDateTime hasta,
-            Pageable pageable);
-
     List<EventoResponse> buscarPorTitulo(String titulo);
     List<EventoResponse> buscarEntreFechas(LocalDateTime desde, LocalDateTime hasta);
 

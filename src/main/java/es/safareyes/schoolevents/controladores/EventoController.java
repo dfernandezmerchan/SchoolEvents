@@ -29,28 +29,14 @@ public class EventoController {
     // GET /api/v1/eventos?cursoId=3 por curso
     // GET /api/v1/eventos?texto=futbol por texto en un buscador
     // GET /api/v1/eventos?desde=2026-12-01T00:00:00&hasta=2026-12-31T23:59:59 por fechas
-    // EJEMPLO COMBINANDO TODO
+    // EJEMPLO COMBINANDO TO
     // GET /api/v1/eventos?categoriaId=2&cursoId=3&texto=futbol&desde=2026-12-01T00:00:00&hasta=2026-12-31T23:59:59&page=0&size=10
     @GetMapping
-    public ResponseEntity<Page<EventoResponse>> listarEventos(
-            @RequestParam(required = false) Integer categoriaId,
-            @RequestParam(required = false) Integer cursoId,
-            @RequestParam(required = false) String texto,
-            @RequestParam(required = false) LocalDateTime desde,
-            @RequestParam(required = false) LocalDateTime hasta,
+    public ResponseEntity<List<EventoResponse>> listarEventos(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
-
-        Page<EventoResponse> eventos = eventoService.listarConFiltros(
-                categoriaId,
-                cursoId,
-                texto,
-                desde,
-                hasta,
-                pageable
-        );
+        List<EventoResponse> eventos = eventoService.listarTodas();
 
         return ResponseEntity.ok(eventos);
     }

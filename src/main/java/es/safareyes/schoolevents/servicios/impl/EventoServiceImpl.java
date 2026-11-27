@@ -57,28 +57,6 @@ public class EventoServiceImpl implements EventoService {
         return listaRespuestas;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<EventoResponse> listarConFiltros(
-            Integer categoriaId,
-            Integer cursoId,
-            String texto,
-            LocalDateTime desde,
-            LocalDateTime hasta,
-            Pageable pageable) {
-
-        Page<Evento> eventos = eventoRepository.buscarConFiltros(
-                categoriaId,
-                cursoId,
-                texto,
-                desde,
-                hasta,
-                pageable
-        );
-
-        return eventos.map(eventoMapper::aResponse);
-    }
-
     // 2. LISTAR EVENTOS CON FILTRO D CATEGORIA Y/O ESTADO
     @Override
     @Transactional(readOnly = true)
